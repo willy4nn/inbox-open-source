@@ -23,9 +23,11 @@
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
-      "@/": ["src/"],
+      "@/*": ["src/"]
     }
   },
-  "include": ["src/*/"],
+  "include": [
+    "src/**/*.ts" // Esta é a correção crucial. Inclui todos os arquivos .ts dentro de src
+  ],
   "exclude": ["node_modules", "dist", "tests"]
 }
