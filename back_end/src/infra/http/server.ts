@@ -3,7 +3,7 @@ import cors from '@fastify/cors';
 import scalarAPIReference from '@scalar/fastify-api-reference'
 import { fastifySwagger } from '@fastify/swagger';
 import 'dotenv/config'
-import { getConversationsRoute } from './controllers/ConversationController';
+import { assignConversationRoute, getConversationsRoute } from './controllers/ConversationController';
 import { validatorCompiler, serializerCompiler, type ZodTypeProvider, jsonSchemaTransform } from 'fastify-type-provider-zod'
 
 const server = Fastify();
@@ -29,4 +29,5 @@ server.setValidatorCompiler(validatorCompiler)
 server.setSerializerCompiler(serializerCompiler)
 
 server.register(getConversationsRoute);
+server.register(assignConversationRoute);
 export const app = server;
