@@ -55,17 +55,23 @@ const assignParamsSchema = z.object({
   conversationId: z.string(),
 });
 
+// Defina um esquema para a resposta de sucesso da API externa
+const successResponseSchemaAssign = z.object({
+
+  success: z.boolean(),
+  message: z.string(),
+});
+
 export const assignConversationRoute: FastifyPluginAsyncZod = async (server) => {
-  server.post('/conversation/:conversationId/assign', {
+  server.post('/conversations/:conversationId/assign', {
     schema: {
-      tags: ['conversation'],
+      tags: ['conversations'],
       summary: 'Assign a conversation to an agent by email',
       params: assignParamsSchema, 
       body: assignBodySchema,     
       response: {
-        200: z.object({
-          message: z.string(),
-        }),
+        // Use o esquema que definimos para a resposta da sua rota
+        200: successResponseSchemaAssign,
         500: errorResponseSchema,
       }
     },
@@ -90,14 +96,23 @@ export const assignConversationRoute: FastifyPluginAsyncZod = async (server) => 
     try {
       const apiResponse = await fetch(`https://api.chatvolt.ai/conversations/${conversationId}/assign`, options);
       
+      // Primeiro, pegamos a resposta como JSON (tipo 'unknown')
+      const data = await apiResponse.json();
+
       if (!apiResponse.ok) {
-        const errorData = await apiResponse.json();
-        console.error('Error from external API:', apiResponse.status, errorData);
+        console.error('Error from external API:', apiResponse.status, data);
         return reply.status(500).send({ error: 'Failed to assign conversation' });
       }
-      const data = await apiResponse.json();
-      return reply.status(200).send({message: "A"});
+
+      // Agora, validamos e tipamos 'data' usando o Zod.
+      // Se a validação falhar, um erro será lançado e capturado pelo 'catch'.
+      const parsedData = successResponseSchema.parse(data);
+      
+      // Agora 'parsedData' é do tipo correto e pode ser enviado com segurança.
+      return reply.status(200).send(parsedData);
+
     } catch (error) {
+      // O 'catch' também irá capturar erros de validação do Zod
       console.error('Error assigning conversation:', error);
       return reply.status(500).send({ error: 'Failed to assign conversation' });
     }
