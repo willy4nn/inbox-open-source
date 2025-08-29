@@ -13,6 +13,32 @@ export const ConversationSchemas = {
 		},
 	},
 
+	// Get Conversations by Date
+	getConversationsByDate: {
+		request: {
+			query: z.object({
+				agentId: z
+					.string()
+					.optional()
+					.describe("ID do agente responsável pela conversa"),
+				createdAt: z
+					.string()
+					.optional()
+					.describe("Data de criação no formato YYYY-MM-DD"),
+				status: z
+					.enum(["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"])
+					.optional()
+					.describe("Status da conversa"),
+			}),
+		},
+		response: {
+			success: z.any().describe("Lista de conversas filtradas"),
+			error: z
+				.object({ error: z.string().describe("Mensagem de erro") })
+				.describe("Erro da API"),
+		},
+	},
+
 	// Assign to User
 	assignToUser: {
 		request: {
@@ -86,6 +112,63 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 				return reply
 					.status(500)
 					.send({ error: "Falha ao buscar conversas" });
+			}
+		}
+	);
+
+	// Listar conversas por data/agente/status
+	server.get(
+		"/conversation/by-date",
+		{
+			schema: {
+				tags: ["conversation"],
+				summary: "Listar conversas filtradas por data, agente e status",
+				querystring:
+					ConversationSchemas.getConversationsByDate.request.query,
+				response: {
+					200: ConversationSchemas.getConversationsByDate.response
+						.success,
+					500: ConversationSchemas.getConversationsByDate.response
+						.error,
+				},
+			},
+		},
+		async (request, reply) => {
+			if (!process.env.API_KEY)
+				return reply.status(500).send({ error: "API key ausente" });
+
+			const query =
+				ConversationSchemas.getConversationsByDate.request.query.parse(
+					request.query
+				);
+			const params = new URLSearchParams();
+			if (query.agentId) params.append("agentId", query.agentId);
+			if (query.createdAt) params.append("createdAt", query.createdAt);
+			if (query.status) params.append("status", query.status);
+
+			try {
+				const res = await fetch(
+					`https://api.chatvolt.ai/conversation${
+						params.toString() ? `?${params.toString()}` : ""
+					}`,
+					{
+						method: "GET",
+						headers: {
+							Authorization: `Bearer ${process.env.API_KEY}`,
+						},
+					}
+				);
+				const data = await res.json();
+				if (!res.ok)
+					return reply
+						.status(500)
+						.send({ error: "Falha ao buscar conversas filtradas" });
+				return reply.status(200).send(data);
+			} catch (err) {
+				console.error("Erro fetch conversas por data:", err);
+				return reply
+					.status(500)
+					.send({ error: "Falha ao buscar conversas filtradas" });
 			}
 		}
 	);
