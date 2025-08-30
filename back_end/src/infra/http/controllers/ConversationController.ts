@@ -1,7 +1,7 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
-// 🔹 Schemas agrupados por rota/função, com descrições e validações
+// 🔹 Schemas agrupados por rota/função
 export const ConversationSchemas = {
 	// Get Conversations (listagem / filtros)
 	getConversations: {
@@ -23,6 +23,23 @@ export const ConversationSchemas = {
 		},
 		response: {
 			success: z.any().describe("Lista de conversas filtradas"),
+			error: z
+				.object({ error: z.string().describe("Mensagem de erro") })
+				.describe("Erro da API"),
+		},
+	},
+
+	// Get Conversation By ID
+	getConversationById: {
+		request: {
+			params: z.object({
+				conversationId: z
+					.string()
+					.describe("ID da conversa específica"),
+			}),
+		},
+		response: {
+			success: z.any().describe("Detalhes da conversa"),
 			error: z
 				.object({ error: z.string().describe("Mensagem de erro") })
 				.describe("Erro da API"),
@@ -116,6 +133,54 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 				return reply
 					.status(500)
 					.send({ error: "Falha ao buscar conversas" });
+			}
+		}
+	);
+
+	// GET /conversation/:conversationId (buscar por ID)
+	server.get(
+		"/conversation/:conversationId",
+		{
+			schema: {
+				tags: ["conversation"],
+				summary: "Buscar conversa por ID",
+				params: ConversationSchemas.getConversationById.request.params,
+				response: {
+					200: ConversationSchemas.getConversationById.response
+						.success,
+					500: ConversationSchemas.getConversationById.response.error,
+				},
+			},
+		},
+		async (request, reply) => {
+			if (!process.env.API_KEY)
+				return reply.status(500).send({ error: "API key ausente" });
+
+			const { conversationId } = request.params;
+
+			try {
+				const res = await fetch(
+					`https://api.chatvolt.ai/conversation/${conversationId}`,
+					{
+						method: "GET",
+						headers: {
+							Authorization: `Bearer ${process.env.API_KEY}`,
+						},
+					}
+				);
+
+				const data = await res.json();
+				if (!res.ok)
+					return reply
+						.status(500)
+						.send({ error: "Falha ao buscar conversa" });
+
+				return reply.status(200).send(data);
+			} catch (err) {
+				console.error("Erro fetch conversa pelo ID:", err);
+				return reply
+					.status(500)
+					.send({ error: "Falha ao buscar conversa" });
 			}
 		}
 	);
