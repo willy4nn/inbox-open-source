@@ -3,7 +3,7 @@ import { z } from "zod";
 
 // 🔹 Schemas agrupados por rota/função
 export const ConversationSchemas = {
-	// Get Conversations (listagem / filtros)
+	// GET /conversation (listagem / filtros)
 	getConversations: {
 		request: {
 			query: z.object({
@@ -22,14 +22,61 @@ export const ConversationSchemas = {
 			}),
 		},
 		response: {
-			success: z.any().describe("Lista de conversas filtradas"),
-			error: z
-				.object({ error: z.string().describe("Mensagem de erro") })
-				.describe("Erro da API"),
+			success: z
+				.array(
+					z.object({
+						id: z.string(),
+						title: z.string(),
+						isAiEnabled: z.boolean(),
+						channel: z.string(),
+						status: z.enum([
+							"RESOLVED",
+							"UNRESOLVED",
+							"HUMAN_REQUESTED",
+						]),
+						metadata: z.record(z.string(), z.unknown()),
+						channelExternalId: z.string(),
+						channelCredentialsId: z.string(),
+						organizationId: z.string(),
+						mailInboxId: z.string(),
+						priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
+						formId: z.string(),
+						agentId: z.string(),
+						userId: z.string(),
+						visitorId: z.string(),
+						frustration: z.number(),
+						createdAt: z.string(),
+						updatedAt: z.string(),
+						participantsContacts: z.array(
+							z.object({ firstName: z.string() })
+						),
+						conversationVariables: z.array(
+							z.object({
+								conversationId: z.string(),
+								varName: z.string(),
+								varValue: z.string(),
+							})
+						),
+						conversationContexts: z.array(
+							z.object({
+								context: z.string(),
+								updatedAt: z.string(),
+							})
+						),
+						assignees: z.array(
+							z.object({
+								id: z.string(),
+								email: z.string().email(),
+							})
+						),
+					})
+				)
+				.describe("Lista de conversas filtradas"),
+			error: z.object({ error: z.string() }).describe("Erro da API"),
 		},
 	},
 
-	// Get Conversation By ID
+	// GET /conversation/:conversationId
 	getConversationById: {
 		request: {
 			params: z.object({
@@ -39,49 +86,66 @@ export const ConversationSchemas = {
 			}),
 		},
 		response: {
-			success: z.any().describe("Detalhes da conversa"),
-			error: z
-				.object({ error: z.string().describe("Mensagem de erro") })
-				.describe("Erro da API"),
+			success: z.object({
+				id: z.string(),
+				title: z.string(),
+				isAiEnabled: z.boolean(),
+				channel: z.string(),
+				status: z.enum(["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"]),
+				metadata: z.record(z.string(), z.unknown()), // <-- corrigido
+				channelExternalId: z.string(),
+				channelCredentialsId: z.string(),
+				organizationId: z.string(),
+				mailInboxId: z.string(),
+				priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
+				formId: z.string(),
+				agentId: z.string(),
+				userId: z.string(),
+				visitorId: z.string(),
+				frustration: z.number(),
+				createdAt: z.string(),
+				updatedAt: z.string(),
+				participantsContacts: z.array(
+					z.object({ firstName: z.string() })
+				),
+				conversationVariables: z.array(
+					z.object({
+						conversationId: z.string(),
+						varName: z.string(),
+						varValue: z.string(),
+					})
+				),
+				conversationContexts: z.array(
+					z.object({ context: z.string(), updatedAt: z.string() })
+				),
+				assignees: z.array(
+					z.object({ id: z.string(), email: z.string().email() })
+				),
+			}),
+
+			error: z.object({ error: z.string() }).describe("Erro da API"),
 		},
 	},
 
-	// Assign Conversation
+	// POST /conversation/:conversationId/assign
 	assignConversation: {
 		request: {
-			params: z.object({
-				conversationId: z
-					.string()
-					.describe("ID da conversa a ser atribuída"),
-			}),
-			body: z.object({
-				email: z
-					.string()
-					.email()
-					.describe("Email do usuário que receberá a conversa"),
-			}),
+			params: z.object({ conversationId: z.string() }),
+			body: z.object({ email: z.string().email() }),
 		},
 		response: {
-			success: z
-				.object({
-					success: z
-						.boolean()
-						.describe(
-							"Indica se a atribuição foi realizada com sucesso"
-						),
-					message: z.string().describe("Mensagem da operação"),
-				})
-				.describe("Resposta de atribuição de conversa"),
-			error: z
-				.object({ error: z.string().describe("Mensagem de erro") })
-				.describe("Erro da API"),
+			success: z.object({
+				success: z.boolean(),
+				message: z.string(),
+			}),
+			error: z.object({ error: z.string() }),
 		},
 	},
 };
 
 // 🔹 Plugin único de rotas de conversation
 export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
-	// GET /conversation (listagem/filtros)
+	// GET /conversation
 	server.get(
 		"/conversation",
 		{
@@ -114,20 +178,17 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 						params.toString() ? `?${params.toString()}` : ""
 					}`,
 					{
-						method: "GET",
 						headers: {
 							Authorization: `Bearer ${process.env.API_KEY}`,
 						},
 					}
 				);
-
 				const data = await res.json();
-				if (!res.ok)
-					return reply
-						.status(500)
-						.send({ error: "Falha ao buscar conversas" });
-
-				return reply.status(200).send(data);
+				const parsedData =
+					ConversationSchemas.getConversations.response.success.parse(
+						data
+					);
+				return reply.status(200).send(parsedData);
 			} catch (err) {
 				console.error("Erro fetch conversas:", err);
 				return reply
@@ -137,7 +198,7 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 		}
 	);
 
-	// GET /conversation/:conversationId (buscar por ID)
+	// GET /conversation/:conversationId
 	server.get(
 		"/conversation/:conversationId",
 		{
@@ -157,25 +218,21 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 				return reply.status(500).send({ error: "API key ausente" });
 
 			const { conversationId } = request.params;
-
 			try {
 				const res = await fetch(
 					`https://api.chatvolt.ai/conversation/${conversationId}`,
 					{
-						method: "GET",
 						headers: {
 							Authorization: `Bearer ${process.env.API_KEY}`,
 						},
 					}
 				);
-
 				const data = await res.json();
-				if (!res.ok)
-					return reply
-						.status(500)
-						.send({ error: "Falha ao buscar conversa" });
-
-				return reply.status(200).send(data);
+				const parsedData =
+					ConversationSchemas.getConversationById.response.success.parse(
+						data
+					);
+				return reply.status(200).send(parsedData);
 			} catch (err) {
 				console.error("Erro fetch conversa pelo ID:", err);
 				return reply
@@ -223,13 +280,7 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 						body: JSON.stringify({ email }),
 					}
 				);
-
 				const data = await res.json();
-				if (!res.ok)
-					return reply
-						.status(500)
-						.send({ error: "Falha ao atribuir conversa" });
-
 				const parsedData =
 					ConversationSchemas.assignConversation.response.success.parse(
 						data
