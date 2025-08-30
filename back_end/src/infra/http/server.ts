@@ -8,6 +8,7 @@ import { validatorCompiler, serializerCompiler, type ZodTypeProvider, jsonSchema
 import { agentWebhookRoute } from './controllers/AgentController';
 import { getMessagesRoute } from './controllers/MessagesController';
 import { registerMessageRoute } from './controllers/RegisterMessageController';
+import { sendMessageRoute } from './controllers/SendMessageController';
 
 const server = Fastify();
 
@@ -35,5 +36,6 @@ server.register(getConversationsRoute);
 server.register(agentWebhookRoute);
 server.register(getMessagesRoute);
 server.register(registerMessageRoute);
+server.register(sendMessageRoute);
 
 export const app = server;
