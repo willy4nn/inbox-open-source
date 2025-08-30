@@ -20,6 +20,7 @@
     "noImplicitThis": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
+    "ignoreDeprecations": "6.0",
     "moduleResolution": "node",
     "baseUrl": "./",
     "paths": {
@@ -27,7 +28,7 @@
     }
   },
   "include": [
-    "src/**/*.ts" // Esta é a correção crucial. Inclui todos os arquivos .ts dentro de src
+    "src/**/*.ts"
   ],
   "exclude": ["node_modules", "dist", "tests"]
 }
