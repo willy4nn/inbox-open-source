@@ -26,49 +26,80 @@ export const ConversationSchemas = {
 				.array(
 					z.object({
 						id: z.string(),
-						title: z.string(),
-						isAiEnabled: z.boolean(),
-						channel: z.string(),
-						status: z.enum([
-							"RESOLVED",
-							"UNRESOLVED",
-							"HUMAN_REQUESTED",
-						]),
-						metadata: z.record(z.string(), z.unknown()),
-						channelExternalId: z.string(),
-						channelCredentialsId: z.string(),
-						organizationId: z.string(),
-						mailInboxId: z.string(),
-						priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
-						formId: z.string(),
-						agentId: z.string(),
-						userId: z.string(),
-						visitorId: z.string(),
-						frustration: z.number(),
-						createdAt: z.string(),
-						updatedAt: z.string(),
-						participantsContacts: z.array(
-							z.object({ firstName: z.string() })
-						),
-						conversationVariables: z.array(
-							z.object({
-								conversationId: z.string(),
-								varName: z.string(),
-								varValue: z.string(),
-							})
-						),
-						conversationContexts: z.array(
-							z.object({
-								context: z.string(),
-								updatedAt: z.string(),
-							})
-						),
-						assignees: z.array(
-							z.object({
-								id: z.string(),
-								email: z.string().email(),
-							})
-						),
+						title: z.string().nullable().default("Sem título"), // Permite null
+						assignees: z
+							.array(
+								z.object({
+									id: z.string(),
+									email: z.string().email(),
+								})
+							)
+							.default([]), // Valor padrão para array vazio
+						// Campos opcionais para compatibilidade com a API
+						isAiEnabled: z.boolean().optional(),
+						channel: z.string().optional(),
+						status: z
+							.enum(["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"])
+							.optional(),
+						metadata: z
+							.record(z.string(), z.unknown())
+							.nullable()
+							.default({})
+							.optional(),
+						channelExternalId: z.string().optional(),
+						channelCredentialsId: z
+							.string()
+							.nullable()
+							.default("")
+							.optional(),
+						organizationId: z.string().optional(),
+						mailInboxId: z
+							.string()
+							.nullable()
+							.default("")
+							.optional(),
+						priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
+						formId: z.string().nullable().default("").optional(),
+						agentId: z.string().nullable().default("").optional(),
+						userId: z.string().nullable().default("").optional(), // Permite null
+						visitorId: z.string().nullable().default("").optional(),
+						frustration: z.number().optional(),
+						createdAt: z.string().optional(),
+						updatedAt: z.string().optional(),
+						participantsContacts: z
+							.array(z.object({ firstName: z.string() }))
+							.default([])
+							.optional(),
+						conversationVariables: z
+							.array(
+								z.object({
+									conversationId: z.string(),
+									varName: z.string(),
+									varValue: z.string(),
+								})
+							)
+							.default([])
+							.optional(),
+						conversationContexts: z
+							.array(
+								z.object({
+									context: z.string(),
+									updatedAt: z.string(),
+								})
+							)
+							.default([])
+							.optional(),
+						isGroup: z.boolean().optional(),
+						aiUserIdentifier: z
+							.string()
+							.nullable()
+							.default("")
+							.optional(), // Permite null
+						unreadMessagesCount: z.number().optional(),
+						crmScenarioConversations: z
+							.array(z.any())
+							.default([])
+							.optional(), // Campo adicional
 					})
 				)
 				.describe("Lista de conversas filtradas"),
@@ -88,41 +119,70 @@ export const ConversationSchemas = {
 		response: {
 			success: z.object({
 				id: z.string(),
-				title: z.string(),
-				isAiEnabled: z.boolean(),
-				channel: z.string(),
-				status: z.enum(["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"]),
-				metadata: z.record(z.string(), z.unknown()), // <-- corrigido
-				channelExternalId: z.string(),
-				channelCredentialsId: z.string(),
-				organizationId: z.string(),
-				mailInboxId: z.string(),
-				priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
-				formId: z.string(),
-				agentId: z.string(),
-				userId: z.string(),
-				visitorId: z.string(),
-				frustration: z.number(),
-				createdAt: z.string(),
-				updatedAt: z.string(),
-				participantsContacts: z.array(
-					z.object({ firstName: z.string() })
-				),
-				conversationVariables: z.array(
-					z.object({
-						conversationId: z.string(),
-						varName: z.string(),
-						varValue: z.string(),
-					})
-				),
-				conversationContexts: z.array(
-					z.object({ context: z.string(), updatedAt: z.string() })
-				),
-				assignees: z.array(
-					z.object({ id: z.string(), email: z.string().email() })
-				),
+				title: z.string().nullable().default("Sem título"), // Permite null
+				assignees: z
+					.array(
+						z.object({
+							id: z.string(),
+							email: z.string().email(),
+						})
+					)
+					.default([]), // Valor padrão
+				// Campos opcionais para compatibilidade com a API
+				isAiEnabled: z.boolean().optional(),
+				channel: z.string().optional(),
+				status: z
+					.enum(["RESOLVED", "UNRESOLVED", "HUMAN_REQUESTED"])
+					.optional(),
+				metadata: z
+					.record(z.string(), z.unknown())
+					.nullable()
+					.default({})
+					.optional(),
+				channelExternalId: z.string().optional(),
+				channelCredentialsId: z
+					.string()
+					.nullable()
+					.default("")
+					.optional(),
+				organizationId: z.string().optional(),
+				mailInboxId: z.string().nullable().default("").optional(),
+				priority: z.enum(["LOW", "MEDIUM", "HIGH"]).optional(),
+				formId: z.string().nullable().default("").optional(),
+				agentId: z.string().nullable().default("").optional(),
+				userId: z.string().nullable().default("").optional(), // Permite null
+				visitorId: z.string().nullable().default("").optional(),
+				frustration: z.number().optional(),
+				createdAt: z.string().optional(),
+				updatedAt: z.string().optional(),
+				participantsContacts: z
+					.array(z.object({ firstName: z.string() }))
+					.default([])
+					.optional(),
+				conversationVariables: z
+					.array(
+						z.object({
+							conversationId: z.string(),
+							varName: z.string(),
+							varValue: z.string(),
+						})
+					)
+					.default([])
+					.optional(),
+				conversationContexts: z
+					.array(
+						z.object({ context: z.string(), updatedAt: z.string() })
+					)
+					.default([])
+					.optional(),
+				isGroup: z.boolean().optional(),
+				aiUserIdentifier: z.string().nullable().default("").optional(), // Permite null
+				unreadMessagesCount: z.number().optional(),
+				crmScenarioConversations: z
+					.array(z.any())
+					.default([])
+					.optional(), // Campo adicional
 			}),
-
 			error: z.object({ error: z.string() }).describe("Erro da API"),
 		},
 	},
