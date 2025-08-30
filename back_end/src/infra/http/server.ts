@@ -9,6 +9,7 @@ import { agentWebhookRoute } from './controllers/AgentController';
 import { getMessagesRoute } from './controllers/MessagesController';
 import { registerMessageRoute } from './controllers/RegisterMessageController';
 import { sendMessageRoute } from './controllers/SendMessageController';
+import { deleteVariableRoute } from './controllers/DeleteVariableController';
 
 const server = Fastify();
 
@@ -37,5 +38,6 @@ server.register(agentWebhookRoute);
 server.register(getMessagesRoute);
 server.register(registerMessageRoute);
 server.register(sendMessageRoute);
+server.register(deleteVariableRoute);
 
 export const app = server;
