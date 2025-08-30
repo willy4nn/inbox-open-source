@@ -1,20 +1,10 @@
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
-// 🔹 Schemas agrupados por rota/função, com descrições e validações
+// 🔹 Schemas agrupados por rota/função
 export const ConversationSchemas = {
-	// Get Messages
-	getMessages: {
-		response: {
-			success: z.any().describe("Lista de todas as conversas"),
-			error: z
-				.object({ error: z.string().describe("Mensagem de erro") })
-				.describe("Erro da API"),
-		},
-	},
-
-	// Get Conversations by Date
-	getConversationsByDate: {
+	// Get Conversations (listagem / filtros)
+	getConversations: {
 		request: {
 			query: z.object({
 				agentId: z
@@ -39,15 +29,32 @@ export const ConversationSchemas = {
 		},
 	},
 
-	// Assign to User
-	assignToUser: {
+	// Get Conversation By ID
+	getConversationById: {
+		request: {
+			params: z.object({
+				conversationId: z
+					.string()
+					.describe("ID da conversa específica"),
+			}),
+		},
+		response: {
+			success: z.any().describe("Detalhes da conversa"),
+			error: z
+				.object({ error: z.string().describe("Mensagem de erro") })
+				.describe("Erro da API"),
+		},
+	},
+
+	// Assign Conversation
+	assignConversation: {
 		request: {
 			params: z.object({
 				conversationId: z
 					.string()
 					.describe("ID da conversa a ser atribuída"),
 			}),
-			query: z.object({
+			body: z.object({
 				email: z
 					.string()
 					.email()
@@ -74,62 +81,17 @@ export const ConversationSchemas = {
 
 // 🔹 Plugin único de rotas de conversation
 export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
-	// Listar todas as conversas
+	// GET /conversation (listagem/filtros)
 	server.get(
 		"/conversation",
 		{
 			schema: {
 				tags: ["conversation"],
-				summary: "Listar todas as conversas",
+				summary: "Listar ou filtrar conversas",
+				querystring: ConversationSchemas.getConversations.request.query,
 				response: {
-					200: ConversationSchemas.getMessages.response.success,
-					500: ConversationSchemas.getMessages.response.error,
-				},
-			},
-		},
-		async (request, reply) => {
-			if (!process.env.API_KEY)
-				return reply.status(500).send({ error: "API key ausente" });
-
-			try {
-				const res = await fetch(
-					"https://api.chatvolt.ai/conversation",
-					{
-						method: "GET",
-						headers: {
-							Authorization: `Bearer ${process.env.API_KEY}`,
-						},
-					}
-				);
-				const data = await res.json();
-				if (!res.ok)
-					return reply
-						.status(500)
-						.send({ error: "Falha ao buscar conversas" });
-				return reply.status(200).send(data);
-			} catch (err) {
-				console.error("Erro fetch conversas:", err);
-				return reply
-					.status(500)
-					.send({ error: "Falha ao buscar conversas" });
-			}
-		}
-	);
-
-	// Listar conversas por data/agente/status
-	server.get(
-		"/conversation/by-date",
-		{
-			schema: {
-				tags: ["conversation"],
-				summary: "Listar conversas filtradas por data, agente e status",
-				querystring:
-					ConversationSchemas.getConversationsByDate.request.query,
-				response: {
-					200: ConversationSchemas.getConversationsByDate.response
-						.success,
-					500: ConversationSchemas.getConversationsByDate.response
-						.error,
+					200: ConversationSchemas.getConversations.response.success,
+					500: ConversationSchemas.getConversations.response.error,
 				},
 			},
 		},
@@ -138,7 +100,7 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 				return reply.status(500).send({ error: "API key ausente" });
 
 			const query =
-				ConversationSchemas.getConversationsByDate.request.query.parse(
+				ConversationSchemas.getConversations.request.query.parse(
 					request.query
 				);
 			const params = new URLSearchParams();
@@ -158,33 +120,35 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 						},
 					}
 				);
+
 				const data = await res.json();
 				if (!res.ok)
 					return reply
 						.status(500)
-						.send({ error: "Falha ao buscar conversas filtradas" });
+						.send({ error: "Falha ao buscar conversas" });
+
 				return reply.status(200).send(data);
 			} catch (err) {
-				console.error("Erro fetch conversas por data:", err);
+				console.error("Erro fetch conversas:", err);
 				return reply
 					.status(500)
-					.send({ error: "Falha ao buscar conversas filtradas" });
+					.send({ error: "Falha ao buscar conversas" });
 			}
 		}
 	);
 
-	// Assign to User
+	// GET /conversation/:conversationId (buscar por ID)
 	server.get(
-		"/conversations/:conversationId/assignToUser",
+		"/conversation/:conversationId",
 		{
 			schema: {
 				tags: ["conversation"],
-				summary: "Atribuir conversa via query string",
-				params: ConversationSchemas.assignToUser.request.params,
-				querystring: ConversationSchemas.assignToUser.request.query,
+				summary: "Buscar conversa por ID",
+				params: ConversationSchemas.getConversationById.request.params,
 				response: {
-					200: ConversationSchemas.assignToUser.response.success,
-					500: ConversationSchemas.assignToUser.response.error,
+					200: ConversationSchemas.getConversationById.response
+						.success,
+					500: ConversationSchemas.getConversationById.response.error,
 				},
 			},
 		},
@@ -193,11 +157,63 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 				return reply.status(500).send({ error: "API key ausente" });
 
 			const { conversationId } = request.params;
-			const { email } = request.query;
 
 			try {
 				const res = await fetch(
-					`https://api.chatvolt.ai/conversations/${conversationId}/assignToUser`,
+					`https://api.chatvolt.ai/conversation/${conversationId}`,
+					{
+						method: "GET",
+						headers: {
+							Authorization: `Bearer ${process.env.API_KEY}`,
+						},
+					}
+				);
+
+				const data = await res.json();
+				if (!res.ok)
+					return reply
+						.status(500)
+						.send({ error: "Falha ao buscar conversa" });
+
+				return reply.status(200).send(data);
+			} catch (err) {
+				console.error("Erro fetch conversa pelo ID:", err);
+				return reply
+					.status(500)
+					.send({ error: "Falha ao buscar conversa" });
+			}
+		}
+	);
+
+	// POST /conversation/:conversationId/assign
+	server.post(
+		"/conversation/:conversationId/assign",
+		{
+			schema: {
+				tags: ["conversation"],
+				summary: "Atribuir conversa a um usuário",
+				params: ConversationSchemas.assignConversation.request.params,
+				body: ConversationSchemas.assignConversation.request.body,
+				response: {
+					200: ConversationSchemas.assignConversation.response
+						.success,
+					500: ConversationSchemas.assignConversation.response.error,
+				},
+			},
+		},
+		async (request, reply) => {
+			if (!process.env.API_KEY)
+				return reply.status(500).send({ error: "API key ausente" });
+
+			const { conversationId } = request.params;
+			const { email } =
+				ConversationSchemas.assignConversation.request.body.parse(
+					request.body
+				);
+
+			try {
+				const res = await fetch(
+					`https://api.chatvolt.ai/conversation/${conversationId}/assign`,
 					{
 						method: "POST",
 						headers: {
@@ -207,6 +223,7 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 						body: JSON.stringify({ email }),
 					}
 				);
+
 				const data = await res.json();
 				if (!res.ok)
 					return reply
@@ -214,7 +231,7 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 						.send({ error: "Falha ao atribuir conversa" });
 
 				const parsedData =
-					ConversationSchemas.assignToUser.response.success.parse(
+					ConversationSchemas.assignConversation.response.success.parse(
 						data
 					);
 				return reply.status(200).send(parsedData);
