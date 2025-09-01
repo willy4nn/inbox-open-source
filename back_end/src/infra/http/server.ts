@@ -10,7 +10,7 @@ import { getMessagesRoute } from './controllers/MessagesController';
 import { registerMessageRoute } from './controllers/RegisterMessageController';
 import { sendMessageRoute } from './controllers/SendMessageController';
 import { VariableRoute } from './controllers/VariableController';
-import { PriorityRoute } from './controllers/StatusController';
+import { PriorityRoute } from './controllers/PriorityController';
 
 const server = Fastify();
 
