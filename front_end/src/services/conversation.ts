@@ -1,5 +1,7 @@
 import type { Conversation } from "@/types/conversation";
 
+const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
+
 // Fetch all conversations with optional filters
 export async function listConversations(params?: {
 	agentId?: string;
@@ -13,7 +15,7 @@ export async function listConversations(params?: {
 	if (params?.status) query.append("status", params.status);
 
 	const res = await fetch(
-		`http://localhost:5000/conversation${query.toString() ? `?${query.toString()}` : ""}`,
+		`${BASE_URL}/conversation${query.toString() ? `?${query.toString()}` : ""}`,
 		{
 			method: "GET",
 			headers: { "Content-Type": "application/json" },
@@ -29,7 +31,7 @@ export async function listConversations(params?: {
 
 // Fetch conversation by ID
 export async function fetchConversationById(conversationId: string): Promise<Conversation> {
-  const res = await fetch(`http://localhost:5000/conversation/${conversationId}`, {
+  const res = await fetch(`${BASE_URL}/conversation/${conversationId}`, {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });
