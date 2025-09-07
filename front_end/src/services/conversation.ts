@@ -26,3 +26,17 @@ export async function listConversations(params?: {
 
 	return res.json();
 }
+
+// Fetch conversation by ID
+export async function fetchConversationById(conversationId: string): Promise<Conversation> {
+  const res = await fetch(`http://localhost:5000/conversation/${conversationId}`, {
+    method: "GET",
+    headers: { "Content-Type": "application/json" },
+  });
+
+  if (!res.ok) {
+    throw new Error(`Failed to fetch conversation ${conversationId}: ${res.statusText}`);
+  }
+
+  return res.json();
+}
