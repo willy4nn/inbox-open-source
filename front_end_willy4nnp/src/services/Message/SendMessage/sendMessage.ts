@@ -1,17 +1,16 @@
 import type {
-	SendMessageRequest,
-	SendMessageResponse,
-	IdentifierType,
-} from "@/types/conversationSendMessage";
+	SendMessageRequestDTO,
+	SendMessageResponseDTO,
+} from "@/services/Message/SendMessage/sendMessageDTO";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// Envia uma mensagem para uma conversa, número ou email
+// Send a message to a conversation, phone, or email
 export async function sendMessage(
-	type: IdentifierType,
+	type: "conversationId" | "phone" | "email",
 	value: string,
-	payload: SendMessageRequest
-): Promise<SendMessageResponse> {
+	payload: SendMessageRequestDTO
+): Promise<SendMessageResponseDTO> {
 	const res = await fetch(
 		`${BASE_URL}/conversation/message/${type}/${value}`,
 		{
