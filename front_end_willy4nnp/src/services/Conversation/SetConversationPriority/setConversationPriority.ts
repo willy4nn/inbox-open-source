@@ -1,16 +1,15 @@
-// services/conversationSetPriority.ts
 import type {
-	SetPriorityRequest,
-	SetPriorityResponse,
-} from "@/types/conversationSetPriority";
+	SetPriorityRequestDTO,
+	SetPriorityResponseDTO,
+} from "@/services/Conversation/SetConversationPriority/setConversationPriorityDTO";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// Define a prioridade de uma conversa
+// Set the priority of a conversation
 export async function setConversationPriority(
 	conversationId: string,
-	payload: SetPriorityRequest
-): Promise<SetPriorityResponse> {
+	payload: SetPriorityRequestDTO
+): Promise<SetPriorityResponseDTO> {
 	const res = await fetch(
 		`${BASE_URL}/conversations/${conversationId}/set-priority`,
 		{
