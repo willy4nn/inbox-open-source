@@ -1,15 +1,14 @@
 import type {
-	RegisterMessageRequest,
-	RegisterMessageResponse,
-} from "@/types/conversationRegisterMessage";
+	RegisterMessageRequestDTO,
+	RegisterMessageResponseDTO,
+} from "@/services/Message/RegisterMessage/registerMessageDTO";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// Registrar uma mensagem em uma conversa
 export async function registerMessage(
 	conversationId: string,
-	payload: RegisterMessageRequest
-): Promise<RegisterMessageResponse> {
+	payload: RegisterMessageRequestDTO
+): Promise<RegisterMessageResponseDTO> {
 	const res = await fetch(
 		`${BASE_URL}/conversations/${conversationId}/message-register`,
 		{
