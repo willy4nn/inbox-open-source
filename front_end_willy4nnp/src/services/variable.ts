@@ -41,3 +41,23 @@ export async function getOneVariable(
 
 	return res.json();
 }
+
+export async function upsertVariable(
+	conversationId: string,
+	varName: string,
+	varValue: string
+): Promise<ConversationVariable> {
+	const res = await fetch(`${BASE_URL}/variables`, {
+		method: "POST",
+		headers: { "Content-Type": "application/json" },
+		body: JSON.stringify({ conversationId, varName, varValue }),
+	});
+
+	if (!res.ok) {
+		throw new Error(
+			`Failed to upsert variable "${varName}": ${res.statusText}`
+		);
+	}
+
+	return res.json();
+}
