@@ -12,6 +12,7 @@ import { sendMessageRoute } from './controllers/SendMessageController';
 import { VariableRoute } from './controllers/VariableController';
 import { PriorityRoute } from './controllers/PriorityController';
 import { StatusRoute } from './controllers/StatusController';
+import { SetAiEnabledRoute } from './controllers/SetAiEnabledController';
 
 const server = Fastify();
 
@@ -43,5 +44,6 @@ server.register(sendMessageRoute);
 server.register(VariableRoute);
 server.register(PriorityRoute);
 server.register(StatusRoute);
+server.register(SetAiEnabledRoute);
 
 export const app = server;
