@@ -1,11 +1,12 @@
-import type { Message } from "@/types/message";
+import type { GetMessagesResponseDTO } from "@/services/Message/GetMessages/getMessagesDTO";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+// Fetch messages from a conversation
 export async function getMessages(
 	conversationId: string,
 	count: string
-): Promise<Message[]> {
+): Promise<GetMessagesResponseDTO> {
 	const res = await fetch(
 		`${BASE_URL}/conversation/${conversationId}/messages/${count}`,
 		{
@@ -15,13 +16,13 @@ export async function getMessages(
 	);
 
 	if (!res.ok) {
-		throw new Error(`Falha ao buscar mensagens: ${res.statusText}`);
+		throw new Error(`Failed to fetch messages: ${res.statusText}`);
 	}
 
 	const data = await res.json();
 
-	// 🔹 Mapear campos do backend para nosso type
-	const messages: Message[] = data.messages.map((msg: any) => ({
+	// Map backend fields to our type
+	const messages: GetMessagesResponseDTO = data.messages.map((msg: any) => ({
 		id: msg.id,
 		conversationId: msg.conversationId,
 		sender: msg.from,
