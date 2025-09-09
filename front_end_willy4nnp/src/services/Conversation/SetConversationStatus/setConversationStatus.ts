@@ -1,15 +1,15 @@
 import type {
-	SetStatusRequest,
-	SetStatusResponse,
-} from "@/types/conversationSetStatus";
+	SetStatusRequestDTO,
+	SetStatusResponseDTO,
+} from "@/services/Conversation/SetConversationStatus/setConversationStatusDTO";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
-// Define o status de uma conversa
+// Set the status of a conversation
 export async function setConversationStatus(
 	conversationId: string,
-	payload: SetStatusRequest
-): Promise<SetStatusResponse> {
+	payload: SetStatusRequestDTO
+): Promise<SetStatusResponseDTO> {
 	const res = await fetch(
 		`${BASE_URL}/conversations/${conversationId}/set-status`,
 		{
