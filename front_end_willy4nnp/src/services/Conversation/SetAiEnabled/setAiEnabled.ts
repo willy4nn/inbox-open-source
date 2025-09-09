@@ -1,14 +1,15 @@
 import type {
-	SetAiEnabledRequest,
-	SetAiEnabledResponse,
-} from "@/types/conversationSetAiEnabled";
+	SetAiEnabledRequestDTO,
+	SetAiEnabledResponseDTO,
+} from "@/services/Conversation/SetAiEnabled/setAiEnabledDTO";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
+// Enable or disable AI for a conversation
 export async function setAiEnabled(
 	conversationId: string,
-	payload: SetAiEnabledRequest
-): Promise<SetAiEnabledResponse> {
+	payload: SetAiEnabledRequestDTO
+): Promise<SetAiEnabledResponseDTO> {
 	const res = await fetch(
 		`${BASE_URL}/conversations/${conversationId}/set-ai-enabled`,
 		{
