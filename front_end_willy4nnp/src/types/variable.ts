@@ -3,3 +3,8 @@ export interface ConversationVariable {
 	varName: string;
 	varValue: string;
 }
+
+export type DeleteVariableResponse = {
+	message: string;
+	deleted: ConversationVariable;
+};

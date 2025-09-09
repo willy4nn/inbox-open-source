@@ -1,4 +1,7 @@
-import type { ConversationVariable } from "@/types/variable";
+import type {
+	ConversationVariable,
+	DeleteVariableResponse,
+} from "@/types/variable";
 
 const BASE_URL = process.env.NEXT_PUBLIC_BACKEND_URL;
 
@@ -60,4 +63,38 @@ export async function upsertVariable(
 	}
 
 	return res.json();
+}
+
+export async function deleteVariable(
+	conversationId: string,
+	varName: string
+): Promise<DeleteVariableResponse> {
+	const url = `${BASE_URL}/variables/${encodeURIComponent(
+		conversationId
+	)}/${encodeURIComponent(varName)}`;
+
+	const response = await fetch(url, {
+		method: "DELETE",
+		headers: {
+			Authorization: `Bearer ${process.env.NEXT_PUBLIC_API_KEY}`, // se precisar passar
+		},
+	});
+
+	let data: DeleteVariableResponse | { error: string };
+
+	try {
+		data = await response.json();
+	} catch {
+		throw new Error(
+			"Falha ao deletar a variável: resposta inválida do servidor"
+		);
+	}
+
+	if (!response.ok) {
+		throw new Error(
+			(data as { error: string }).error || "Falha ao deletar a variável"
+		);
+	}
+
+	return data as DeleteVariableResponse;
 }
