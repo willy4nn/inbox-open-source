@@ -1,4 +1,3 @@
-// src/store/useConversationsStore.ts
 import { create } from "zustand";
 import type { getConversationByIdResponseDTO as Conversation } from "@/services/Conversation/GetConversationById/getConversationByIdDTO";
 
@@ -13,7 +12,6 @@ interface ConversationsState {
 		| "HUMAN_REQUESTED"
 		| "UNREAD";
 
-	// Actions
 	setAllConversations: (convs: Conversation[]) => void;
 	setSelectedConversation: (conv: Conversation) => void;
 	clearSelectedConversation: () => void;

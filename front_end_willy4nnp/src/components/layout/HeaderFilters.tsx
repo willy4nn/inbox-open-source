@@ -1,9 +1,18 @@
-// src/components/layout/HeaderFilters.tsx
 "use client";
 
+import { useState } from "react";
 import { useConversationsStore } from "@/store/useConversationsStore";
+import { useCustomFiltersStore } from "@/store/useCustomFiltersStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+	Select,
+	SelectContent,
+	SelectItem,
+	SelectTrigger,
+	SelectValue,
+} from "@/components/ui/select";
+import { CustomFiltersModal } from "@/components/CustomFiltersModal";
 
 export function HeaderFilters() {
 	const searchQuery = useConversationsStore((s) => s.searchQuery);
@@ -11,18 +20,22 @@ export function HeaderFilters() {
 	const setSearchQuery = useConversationsStore((s) => s.setSearchQuery);
 	const setStatusFilter = useConversationsStore((s) => s.setStatusFilter);
 
+	const { filters, selectedFilter, selectFilter } = useCustomFiltersStore();
+
+	const [showCustomFilters, setShowCustomFilters] = useState(false);
+
 	return (
 		<header className="w-full p-4 border-b border-gray-200 flex items-center justify-between gap-4">
 			{/* Campo de busca */}
 			<Input
 				type="text"
-				placeholder="Buscar conversas..."
+				placeholder="Buscar conversas ou mensagens..."
 				value={searchQuery}
 				onChange={(e) => setSearchQuery(e.target.value)}
 				className="flex-1"
 			/>
 
-			{/* Botões de filtro de status */}
+			{/* Filtros rápidos */}
 			<div className="flex gap-2">
 				<Button
 					variant={statusFilter === "ALL" ? "default" : "outline"}
@@ -62,7 +75,38 @@ export function HeaderFilters() {
 				>
 					Não Lidas
 				</Button>
+
+				{/* Filtros avançados */}
+				<Button
+					variant="outline"
+					onClick={() => setShowCustomFilters(true)}
+				>
+					Filtros Avançados
+				</Button>
+
+				{/* Select com filtros salvos */}
+				<Select
+					value={selectedFilter ?? ""}
+					onValueChange={(val) => selectFilter(val)}
+				>
+					<SelectTrigger className="w-[200px]">
+						<SelectValue placeholder="Selecionar filtro salvo" />
+					</SelectTrigger>
+					<SelectContent>
+						{filters.map((f) => (
+							<SelectItem key={f.id} value={f.id}>
+								{f.name}
+							</SelectItem>
+						))}
+					</SelectContent>
+				</Select>
 			</div>
+
+			{/* Modal para criar filtros customizados */}
+			<CustomFiltersModal
+				open={showCustomFilters}
+				onClose={() => setShowCustomFilters(false)}
+			/>
 		</header>
 	);
 }

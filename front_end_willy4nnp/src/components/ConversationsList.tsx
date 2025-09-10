@@ -1,31 +1,112 @@
 "use client";
 
 import { useConversationsStore } from "@/store/useConversationsStore";
+import { useMessagesStore } from "@/store/useMessagesStore";
+import { useCustomFiltersStore } from "@/store/useCustomFiltersStore";
 import { ConversationCard } from "@/components/ConversationCard";
+import type { getConversationByIdResponseDTO } from "@/services/Conversation/GetConversationById/getConversationByIdDTO";
 
 export function ConversationsList() {
-	const allConversations = useConversationsStore((s) => s.allConversations);
-	const searchQuery = useConversationsStore((s) => s.searchQuery);
-	const statusFilter = useConversationsStore((s) => s.statusFilter);
+	const { allConversations, searchQuery, statusFilter } =
+		useConversationsStore();
+	const { messagesByConversation } = useMessagesStore();
+	const { filters, selectedFilter } = useCustomFiltersStore();
 
-	const filteredConversations = allConversations.filter((conv) => {
-		// Filtro de busca por texto
-		const matchesSearch = searchQuery
-			? (conv.aiUserIdentifier ?? conv.title ?? "")
-					.toLowerCase()
-					.includes(searchQuery.toLowerCase())
-			: true;
+	// Filtro customizado selecionado
+	const activeCustomFilter = filters.find((f) => f.id === selectedFilter);
 
-		// Filtro por status ou não lidas
-		const matchesStatus =
-			statusFilter === "ALL"
-				? true
-				: statusFilter === "UNREAD"
-				? (conv.unreadMessagesCount ?? 0) > 0
-				: conv.status === statusFilter;
+	const filteredConversations = allConversations.filter(
+		(conv: getConversationByIdResponseDTO) => {
+			const titleContent = conv.aiUserIdentifier ?? conv.title ?? "";
 
-		return matchesSearch && matchesStatus;
-	});
+			// 🔎 Busca no título ou nas mensagens
+			const matchesSearch = searchQuery
+				? titleContent
+						.toLowerCase()
+						.includes(searchQuery.toLowerCase()) ||
+				  (messagesByConversation[conv.id] || []).some(
+						(msg: { text: string }) =>
+							msg.text
+								.toLowerCase()
+								.includes(searchQuery.toLowerCase())
+				  )
+				: true;
+
+			// 📌 Filtro rápido por status
+			const matchesStatus =
+				statusFilter === "ALL"
+					? true
+					: statusFilter === "UNREAD"
+					? (conv.unreadMessagesCount ?? 0) > 0
+					: conv.status === statusFilter;
+
+			// 🛠️ Filtros customizados
+			// 🛠️ Filtros customizados
+			const matchesCustom =
+				!activeCustomFilter ||
+				(
+					[
+						// Usuário responsável → checa assignees
+						!activeCustomFilter.responsavel ||
+							conv.assignees?.some(
+								(a: { id?: string; email?: string }) =>
+									a.id === activeCustomFilter.responsavel
+							) ||
+							false, // garante booleano
+
+						// Canal
+						!activeCustomFilter.canal ||
+							conv.channel === activeCustomFilter.canal,
+
+						// Agente de IA → usa agentId
+						!activeCustomFilter.agenteIA ||
+							conv.agentId === activeCustomFilter.agenteIA,
+
+						// Prioridade
+						!activeCustomFilter.prioridade ||
+							conv.priority === activeCustomFilter.prioridade,
+
+						// Status da IA na conversa
+						!activeCustomFilter.statusIA ||
+							(conv.isAiEnabled ? "ENABLED" : "DISABLED") ===
+								activeCustomFilter.statusIA,
+
+						// Cenário CRM → ignora undefined e confere JSON.stringify
+						!activeCustomFilter.cenarioCRM ||
+							(conv.crmScenarioConversations?.some(
+								(s: unknown) =>
+									activeCustomFilter.cenarioCRM !==
+										undefined &&
+									JSON.stringify(s).includes(
+										activeCustomFilter.cenarioCRM
+									)
+							) ??
+								false),
+
+						// Nível de Insatisfação → frustration
+						activeCustomFilter.nivelInsatisfacao === undefined ||
+							conv.frustration ===
+								activeCustomFilter.nivelInsatisfacao,
+
+						// Etiquetas (salvas em conversationVariables como varName = "tag")
+						!activeCustomFilter.etiquetas?.length ||
+							activeCustomFilter.etiquetas.every(
+								(tag: string) =>
+									conv.conversationVariables?.some(
+										(v: {
+											varName: string;
+											varValue: string;
+										}) =>
+											v.varName === "tag" &&
+											v.varValue === tag
+									) ?? false
+							),
+					] as boolean[]
+				).every(Boolean);
+
+			return matchesSearch && matchesStatus && matchesCustom;
+		}
+	);
 
 	if (!allConversations || allConversations.length === 0)
 		return <p>Carregando conversas...</p>;
