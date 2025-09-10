@@ -24,11 +24,10 @@ export function ConversationsList() {
 				? titleContent
 						.toLowerCase()
 						.includes(searchQuery.toLowerCase()) ||
-				  (messagesByConversation[conv.id] || []).some(
-						(msg: { text: string }) =>
-							msg.text
-								.toLowerCase()
-								.includes(searchQuery.toLowerCase())
+				  (messagesByConversation[conv.id] || []).some((msg) =>
+						msg.text
+							.toLowerCase()
+							.includes(searchQuery.toLowerCase())
 				  )
 				: true;
 
@@ -41,18 +40,17 @@ export function ConversationsList() {
 					: conv.status === statusFilter;
 
 			// 🛠️ Filtros customizados
-			// 🛠️ Filtros customizados
 			const matchesCustom =
 				!activeCustomFilter ||
 				(
 					[
 						// Usuário responsável → checa assignees
 						!activeCustomFilter.responsavel ||
-							conv.assignees?.some(
-								(a: { id?: string; email?: string }) =>
+							(conv.assignees?.some(
+								(a: { id?: string }) =>
 									a.id === activeCustomFilter.responsavel
-							) ||
-							false, // garante booleano
+							) ??
+								false),
 
 						// Canal
 						!activeCustomFilter.canal ||
@@ -71,7 +69,7 @@ export function ConversationsList() {
 							(conv.isAiEnabled ? "ENABLED" : "DISABLED") ===
 								activeCustomFilter.statusIA,
 
-						// Cenário CRM → ignora undefined e confere JSON.stringify
+						// Cenário CRM
 						!activeCustomFilter.cenarioCRM ||
 							(conv.crmScenarioConversations?.some(
 								(s: unknown) =>

@@ -35,8 +35,9 @@ export function HeaderFilters() {
 				className="flex-1"
 			/>
 
-			{/* Filtros rápidos */}
-			<div className="flex gap-2">
+			{/* Filtros rápidos e avançados */}
+			<div className="flex gap-2 items-center">
+				{/* Filtros rápidos */}
 				<Button
 					variant={statusFilter === "ALL" ? "default" : "outline"}
 					onClick={() => setStatusFilter("ALL")}
@@ -76,7 +77,7 @@ export function HeaderFilters() {
 					Não Lidas
 				</Button>
 
-				{/* Filtros avançados */}
+				{/* Botão para abrir modal de filtros avançados */}
 				<Button
 					variant="outline"
 					onClick={() => setShowCustomFilters(true)}
@@ -87,7 +88,7 @@ export function HeaderFilters() {
 				{/* Select com filtros salvos */}
 				<Select
 					value={selectedFilter ?? ""}
-					onValueChange={(val) => selectFilter(val)}
+					onValueChange={(val) => selectFilter(val || null)}
 				>
 					<SelectTrigger className="w-[200px]">
 						<SelectValue placeholder="Selecionar filtro salvo" />
@@ -100,6 +101,16 @@ export function HeaderFilters() {
 						))}
 					</SelectContent>
 				</Select>
+
+				{/* Botão para limpar filtro selecionado */}
+				{selectedFilter && (
+					<Button
+						variant="outline"
+						onClick={() => selectFilter(null)}
+					>
+						Limpar Filtro
+					</Button>
+				)}
 			</div>
 
 			{/* Modal para criar filtros customizados */}
