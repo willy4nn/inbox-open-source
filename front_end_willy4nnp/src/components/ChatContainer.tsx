@@ -48,7 +48,7 @@ export function ChatContainer() {
 			conversationId: selectedConversation.id,
 			payload: {
 				message: newMessage,
-				from: "human",
+				from: "agent",
 			},
 		});
 
