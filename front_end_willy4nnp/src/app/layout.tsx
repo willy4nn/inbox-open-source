@@ -5,7 +5,8 @@ import "./globals.css";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/layout/AppSidebar";
-import { CustomSidebarTrigger } from "@/components/layout/CustomSidebarTrigger";
+import { SidebarInbox } from "@/components/layout/SidebarInbox";
+import { HeaderFilters } from "@/components/layout/HeaderFilters";
 
 const geistSans = Geist({
 	variable: "--font-geist-sans",
@@ -32,13 +33,20 @@ export default function RootLayout({
 			<body
 				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
 			>
+				{/* SidebarProvider agora engloba toda a estrutura */}
 				<SidebarProvider>
+					{/* Sidebar fixa */}
 					<AppSidebar />
+
 					<main className="w-full flex flex-col">
-						<div className="px-4 py-5">
-							<CustomSidebarTrigger />
+						{/* Inbox com trigger funcionando */}
+						<SidebarInbox />
+
+						{/* Container que agrupa Header + conteúdo */}
+						<div className="flex flex-col w-full">
+							<HeaderFilters />
+							{children}
 						</div>
-						{children}
 					</main>
 				</SidebarProvider>
 			</body>

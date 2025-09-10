@@ -1,6 +1,6 @@
 "use client";
 
-import { useConversationStore } from "@/store/useConversationStore";
+import { useConversationsStore } from "@/store/useConversationsStore";
 import { useSetAiEnabled } from "@/hooks/Conversation/useSetAiEnabled";
 import { useSetConversationStatus } from "@/hooks/Conversation/useSetConversationStatus";
 import { useSetConversationPriority } from "@/hooks/Conversation/useSetConversationPriority";
@@ -14,8 +14,12 @@ import {
 import { Button } from "@/components/ui/button";
 
 export function OptionsPanel() {
-	const selectedConversation = useConversationStore(
+	// Chamadas separadas
+	const selectedConversation = useConversationsStore(
 		(s) => s.selectedConversation
+	);
+	const setSelectedConversation = useConversationsStore(
+		(s) => s.setSelectedConversation
 	);
 
 	const { setAiEnabled, isMutating: isAiMutating } = useSetAiEnabled();
@@ -61,14 +65,12 @@ export function OptionsPanel() {
 		<div className="w-64 border-l border-gray-200 p-4 overflow-y-auto space-y-4">
 			<h2 className="text-lg font-semibold mb-2">Opções</h2>
 
-			{/* Toggle AI */}
 			<Button onClick={handleToggleAI} disabled={isAiMutating}>
 				{selectedConversation.isAiEnabled
 					? "Desativar AI"
 					: "Ativar AI"}
 			</Button>
 
-			{/* Select Status */}
 			<div>
 				<label className="block mb-1 font-medium">
 					Status da Conversa
@@ -93,7 +95,6 @@ export function OptionsPanel() {
 				</Select>
 			</div>
 
-			{/* Select Priority */}
 			<div>
 				<label className="block mb-1 font-medium">Prioridade</label>
 				<Select
