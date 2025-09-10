@@ -4,18 +4,25 @@ import { useConversationsStore } from "@/store/useConversationsStore";
 import { ConversationCard } from "@/components/ConversationCard";
 
 export function ConversationsList() {
-	const { allConversations, searchQuery, statusFilter } =
-		useConversationsStore();
+	const allConversations = useConversationsStore((s) => s.allConversations);
+	const searchQuery = useConversationsStore((s) => s.searchQuery);
+	const statusFilter = useConversationsStore((s) => s.statusFilter);
 
 	const filteredConversations = allConversations.filter((conv) => {
+		// Filtro de busca por texto
 		const matchesSearch = searchQuery
 			? (conv.aiUserIdentifier ?? conv.title ?? "")
 					.toLowerCase()
 					.includes(searchQuery.toLowerCase())
 			: true;
 
+		// Filtro por status ou não lidas
 		const matchesStatus =
-			statusFilter === "ALL" ? true : conv.status === statusFilter;
+			statusFilter === "ALL"
+				? true
+				: statusFilter === "UNREAD"
+				? (conv.unreadMessagesCount ?? 0) > 0
+				: conv.status === statusFilter;
 
 		return matchesSearch && matchesStatus;
 	});

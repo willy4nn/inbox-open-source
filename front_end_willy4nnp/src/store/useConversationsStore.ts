@@ -6,7 +6,12 @@ interface ConversationsState {
 	allConversations: Conversation[];
 	selectedConversation: Conversation | null;
 	searchQuery: string;
-	statusFilter: "ALL" | "RESOLVED" | "UNRESOLVED" | "HUMAN_REQUESTED";
+	statusFilter:
+		| "ALL"
+		| "RESOLVED"
+		| "UNRESOLVED"
+		| "HUMAN_REQUESTED"
+		| "UNREAD";
 
 	// Actions
 	setAllConversations: (convs: Conversation[]) => void;
@@ -14,7 +19,7 @@ interface ConversationsState {
 	clearSelectedConversation: () => void;
 	setSearchQuery: (query: string) => void;
 	setStatusFilter: (
-		status: "ALL" | "RESOLVED" | "UNRESOLVED" | "HUMAN_REQUESTED"
+		status: "ALL" | "RESOLVED" | "UNRESOLVED" | "HUMAN_REQUESTED" | "UNREAD"
 	) => void;
 }
 

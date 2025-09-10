@@ -1,3 +1,4 @@
+// src/components/layout/HeaderFilters.tsx
 "use client";
 
 import { useConversationsStore } from "@/store/useConversationsStore";
@@ -5,32 +6,27 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 
 export function HeaderFilters() {
-	const { searchQuery, statusFilter, setSearchQuery, setStatusFilter } =
-		useConversationsStore();
-
-	const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchQuery(e.target.value);
-	};
-
-	const handleFilterClick = (
-		status: "ALL" | "RESOLVED" | "UNRESOLVED" | "HUMAN_REQUESTED"
-	) => {
-		setStatusFilter(status);
-	};
+	const searchQuery = useConversationsStore((s) => s.searchQuery);
+	const statusFilter = useConversationsStore((s) => s.statusFilter);
+	const setSearchQuery = useConversationsStore((s) => s.setSearchQuery);
+	const setStatusFilter = useConversationsStore((s) => s.setStatusFilter);
 
 	return (
-		<header className="w-full p-4 border-b border-gray-200 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
+		<header className="w-full p-4 border-b border-gray-200 flex items-center justify-between gap-4">
+			{/* Campo de busca */}
 			<Input
+				type="text"
 				placeholder="Buscar conversas..."
 				value={searchQuery}
-				onChange={handleSearchChange}
+				onChange={(e) => setSearchQuery(e.target.value)}
 				className="flex-1"
 			/>
-			<div className="flex gap-2 mt-2 md:mt-0">
+
+			{/* Botões de filtro de status */}
+			<div className="flex gap-2">
 				<Button
 					variant={statusFilter === "ALL" ? "default" : "outline"}
-					size="sm"
-					onClick={() => handleFilterClick("ALL")}
+					onClick={() => setStatusFilter("ALL")}
 				>
 					Todas
 				</Button>
@@ -38,8 +34,7 @@ export function HeaderFilters() {
 					variant={
 						statusFilter === "RESOLVED" ? "default" : "outline"
 					}
-					size="sm"
-					onClick={() => handleFilterClick("RESOLVED")}
+					onClick={() => setStatusFilter("RESOLVED")}
 				>
 					Resolvidas
 				</Button>
@@ -47,10 +42,9 @@ export function HeaderFilters() {
 					variant={
 						statusFilter === "UNRESOLVED" ? "default" : "outline"
 					}
-					size="sm"
-					onClick={() => handleFilterClick("UNRESOLVED")}
+					onClick={() => setStatusFilter("UNRESOLVED")}
 				>
-					Não resolvidas
+					Não Resolvidas
 				</Button>
 				<Button
 					variant={
@@ -58,10 +52,15 @@ export function HeaderFilters() {
 							? "default"
 							: "outline"
 					}
-					size="sm"
-					onClick={() => handleFilterClick("HUMAN_REQUESTED")}
+					onClick={() => setStatusFilter("HUMAN_REQUESTED")}
 				>
 					Humano solicitado
+				</Button>
+				<Button
+					variant={statusFilter === "UNREAD" ? "default" : "outline"}
+					onClick={() => setStatusFilter("UNREAD")}
+				>
+					Não Lidas
 				</Button>
 			</div>
 		</header>
