@@ -6,24 +6,40 @@ import { useMessagesStore } from "@/store/useMessagesStore";
 import { useRegisterMessage } from "@/hooks/Message/useRegisterMessage";
 import { ChatMessage } from "./ChatMessage";
 import { ChatInput } from "./ChatInput";
+import { useGetMessages } from "@/hooks/Message/useGetMessages";
 
 export function ChatContainer() {
 	const selectedConversation = useConversationsStore(
 		(s) => s.selectedConversation
 	);
-
 	const { messagesByConversation, setMessages } = useMessagesStore();
 	const { registerMessage, isMutating } = useRegisterMessage();
-
 	const [newMessage, setNewMessage] = useState("");
 	const messagesEndRef = useRef<HTMLDivElement | null>(null);
 
-	// Pega as mensagens da conversa selecionada
+	// 1️⃣ Usando hook SWR para carregar mensagens
+	const {
+		messages: fetchedMessages,
+		isLoading,
+		mutate,
+	} = useGetMessages(
+		selectedConversation?.id ?? null,
+		"50" // quantidade de mensagens que quer buscar
+	);
+
+	// 2️⃣ Sempre que o fetch retornar, atualiza o store
+	useEffect(() => {
+		if (selectedConversation && fetchedMessages) {
+			setMessages(selectedConversation.id, fetchedMessages);
+		}
+	}, [fetchedMessages, selectedConversation, setMessages]);
+
+	// 3️⃣ Mensagens do store
 	const messages = selectedConversation
 		? messagesByConversation[selectedConversation.id] || []
 		: [];
 
-	// Scroll automático sempre que mudar conversa ou mensagens
+	// 4️⃣ Scroll automático
 	useEffect(() => {
 		messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [messages, selectedConversation]);
@@ -34,30 +50,37 @@ export function ChatContainer() {
 	const handleSendMessage = async () => {
 		if (!newMessage.trim() || !selectedConversation) return;
 
-		// Envia mensagem pela API
-		const sent = await registerMessage({
+		const optimisticMessage = {
+			id: crypto.randomUUID(),
 			conversationId: selectedConversation.id,
-			payload: { message: newMessage, from: "agent" },
-		});
+			sender: "agent",
+			text: newMessage,
+			timestamp: new Date().toISOString(),
+		};
 
-		// Atualiza store local imediatamente (optimistic update)
-		if (sent) {
-			setMessages(selectedConversation.id, [
-				...messages,
-				{
-					id: crypto.randomUUID(),
-					conversationId: selectedConversation.id,
-					sender: "agent",
-					text: newMessage,
-					timestamp: new Date().toISOString(),
-				},
-			]);
+		// Atualiza store local e SWR (optimistic update)
+		setMessages(selectedConversation.id, [...messages, optimisticMessage]);
+		if (mutate) {
+			mutate([...messages, optimisticMessage], false);
 		}
-
 		setNewMessage("");
+
+		try {
+			await registerMessage({
+				conversationId: selectedConversation.id,
+				payload: { message: optimisticMessage.text, from: "agent" },
+			});
+			// Revalida SWR para garantir consistência
+			if (mutate) mutate();
+		} catch (err) {
+			console.error("Erro ao enviar mensagem:", err);
+			// opcional: remover mensagem otimista
+			setMessages(selectedConversation.id, messages);
+			if (mutate) mutate();
+		}
 	};
 
-	// Ordena mensagens por timestamp
+	// 5️⃣ Ordena mensagens
 	const sortedMessages = messages
 		?.slice()
 		.sort(
@@ -68,7 +91,6 @@ export function ChatContainer() {
 
 	return (
 		<div className="flex-1 flex flex-col">
-			{/* Header da conversa */}
 			<div className="p-4 border-b">
 				<h2 className="text-lg font-semibold">
 					{selectedConversation.aiUserIdentifier ??
@@ -77,8 +99,8 @@ export function ChatContainer() {
 				</h2>
 			</div>
 
-			{/* Área das mensagens */}
 			<div className="flex-1 p-4 overflow-y-auto space-y-4">
+				{isLoading && <p>Carregando mensagens...</p>}
 				{sortedMessages?.map((msg) => (
 					<ChatMessage
 						key={msg.id}
@@ -90,7 +112,6 @@ export function ChatContainer() {
 				<div ref={messagesEndRef} />
 			</div>
 
-			{/* Input para enviar mensagem */}
 			<ChatInput
 				value={newMessage}
 				onChange={setNewMessage}
