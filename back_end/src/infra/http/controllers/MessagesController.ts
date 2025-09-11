@@ -39,11 +39,31 @@ export const MessageSchemas = {
                 .describe("Erro da API"),
         },
     },
+
+    // Get Logs (apenas assignees)
+    getLogs: {
+        request: {
+            params: z.object({
+                messageId: z.string().describe("ID da mensagem para buscar logs"),
+            }),
+        },
+        response: {
+            success: z.array(
+                z.object({
+                    id: z.string(),
+                    userId: z.string().nullable(),
+                })
+            ).describe("Lista de assignees"),
+            error: z
+                .object({ error: z.string().describe("Mensagem de erro") })
+                .describe("Erro da API"),
+        },
+    },
 };
 
 // 🔹 Plugin único de rotas de conversation
 export const getMessagesRoute: FastifyPluginAsyncZod = async (server) => {
-    // GET /conversation/:conversationId/messages/:count (listagem/filtros)
+    // GET /conversation/:conversationId/messages/:count
     server.get(
         "/conversation/:conversationId/messages/:count",
         {
@@ -88,7 +108,7 @@ export const getMessagesRoute: FastifyPluginAsyncZod = async (server) => {
         }
     );
 
-    // GET /messages/:messageId (detalhes da mensagem)
+    // GET /messages/:messageId
     server.get(
         "/messages/:messageId",
         {
@@ -129,6 +149,64 @@ export const getMessagesRoute: FastifyPluginAsyncZod = async (server) => {
                 return reply
                     .status(500)
                     .send({ error: "Falha ao buscar detalhes da mensagem" });
+            }
+        }
+    );
+
+    // GET /api/logs/:messageId (apenas assignees)
+    server.get(
+        "/api/logs/:messageId",
+        {
+            schema: {
+                tags: ["logs"],
+                summary: "Retorna apenas os assignees de uma mensagem",
+                params: MessageSchemas.getLogs.request.params,
+                response: {
+                    200: MessageSchemas.getLogs.response.success,
+                    500: MessageSchemas.getLogs.response.error,
+                },
+            },
+        },
+        async (request, reply) => {
+            if (!process.env.API_KEY)
+                return reply.status(500).send({ error: "API key ausente" });
+
+            try {
+                const res = await fetch(
+                    `https://api.chatvolt.ai/api/logs/${request.params.messageId}`,
+                    {
+                        method: "GET",
+                        headers: {
+                            Authorization: `Bearer ${process.env.API_KEY}`,
+                        },
+                    }
+                );
+
+                const data = await res.json();
+
+                if (!res.ok)
+                    return reply
+                        .status(500)
+                        .send({ error: "Falha ao buscar logs da mensagem" });
+
+                // Validar e tipar usando Zod
+                const assigneesSchema = z.object({
+                    assignees: z.array(
+                        z.object({
+                            id: z.string(),
+                            userId: z.string().nullable(),
+                        })
+                    ),
+                });
+
+                const parsed = assigneesSchema.parse(data);
+
+                return reply.status(200).send(parsed.assignees);
+            } catch (err) {
+                console.error("Erro fetch logs:", err);
+                return reply
+                    .status(500)
+                    .send({ error: "Falha ao buscar logs da mensagem" });
             }
         }
     );

@@ -17,6 +17,9 @@ import { VariableRoute } from "./controllers/VariableController";
 import { PriorityRoute } from "./controllers/PriorityController";
 import { StatusRoute } from "./controllers/StatusController";
 import { SetAiEnabledRoute } from "./controllers/SetAiEnabledController";
+import { getMembershipsRoute } from "./controllers/MembershipsController";
+import { conversationTagsRoute } from "./controllers/TagsController";
+import { conversationFrustrationRoute } from "./controllers/FrustrationController";
 
 const server = Fastify();
 
@@ -57,5 +60,8 @@ server.register(VariableRoute);
 server.register(PriorityRoute);
 server.register(StatusRoute);
 server.register(SetAiEnabledRoute);
+server.register(getMembershipsRoute);
+server.register(conversationTagsRoute);
+server.register(conversationFrustrationRoute);
 
 export const app = server;
