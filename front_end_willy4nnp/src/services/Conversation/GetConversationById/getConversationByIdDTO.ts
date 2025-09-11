@@ -5,9 +5,11 @@ interface getConversationByIdRequestDTO {
 interface getConversationByIdResponseDTO {
 	id: string;
 	title: string | null;
-	assignees: {
-		id?: string;
-		email?: string;
+	assignees?: {
+		user?: {
+			id: string;
+			email: string;
+		};
 	}[];
 	isAiEnabled?: boolean;
 	channel?: string;

@@ -12,8 +12,9 @@ export function ConversationsList() {
 	const { messagesByConversation } = useMessagesStore();
 	const { filters, selectedFilter } = useCustomFiltersStore();
 
-	// Filtro customizado selecionado
 	const activeCustomFilter = filters.find((f) => f.id === selectedFilter);
+
+	const userEmail = "willyan@chatvolt.ai"; // filtro fixo
 
 	const filteredConversations = allConversations.filter(
 		(conv: getConversationByIdResponseDTO) => {
@@ -44,32 +45,19 @@ export function ConversationsList() {
 				!activeCustomFilter ||
 				(
 					[
-						// Usuário responsável → checa assignees
-						!activeCustomFilter.responsavel ||
-							(conv.assignees?.some(
-								(a: { id?: string }) =>
-									a.id === activeCustomFilter.responsavel
-							) ??
-								false),
-
-						// Canal
 						!activeCustomFilter.canal ||
 							conv.channel === activeCustomFilter.canal,
 
-						// Agente de IA → usa agentId
 						!activeCustomFilter.agenteIA ||
 							conv.agentId === activeCustomFilter.agenteIA,
 
-						// Prioridade
 						!activeCustomFilter.prioridade ||
 							conv.priority === activeCustomFilter.prioridade,
 
-						// Status da IA na conversa
 						!activeCustomFilter.statusIA ||
 							(conv.isAiEnabled ? "ENABLED" : "DISABLED") ===
 								activeCustomFilter.statusIA,
 
-						// Cenário CRM
 						!activeCustomFilter.cenarioCRM ||
 							(conv.crmScenarioConversations?.some(
 								(s: unknown) =>
@@ -81,12 +69,10 @@ export function ConversationsList() {
 							) ??
 								false),
 
-						// Nível de Insatisfação → frustration
 						activeCustomFilter.nivelInsatisfacao === undefined ||
 							conv.frustration ===
 								activeCustomFilter.nivelInsatisfacao,
 
-						// Etiquetas (salvas em conversationVariables como varName = "tag")
 						!activeCustomFilter.etiquetas?.length ||
 							activeCustomFilter.etiquetas.every(
 								(tag: string) =>
@@ -102,8 +88,35 @@ export function ConversationsList() {
 					] as boolean[]
 				).every(Boolean);
 
-			return matchesSearch && matchesStatus && matchesCustom;
+			// 🔹 Filtro fixo por email do assignee
+			const matchesAssignee =
+				conv.assignees?.some((a) => a.user?.email === userEmail) ??
+				false;
+
+			const result =
+				matchesSearch &&
+				matchesStatus &&
+				matchesCustom &&
+				matchesAssignee;
+
+			// 🔹 DEBUG: log do resultado
+			console.log(`Conversa ${conv.id}:`, {
+				title: conv.title,
+				assignees: conv.assignees?.map((a) => a.user?.email),
+				matchesSearch,
+				matchesStatus,
+				matchesCustom,
+				matchesAssignee,
+				included: result,
+			});
+
+			return result;
 		}
+	);
+
+	console.log(
+		"Conversations filtradas (apenas willyan@chatvolt.ai):",
+		filteredConversations
 	);
 
 	if (!allConversations || allConversations.length === 0)
@@ -113,7 +126,9 @@ export function ConversationsList() {
 
 	return (
 		<div className="w-80 border-r border-gray-200 p-4 overflow-y-auto">
-			<h2 className="text-lg font-semibold mb-4">Conversas</h2>
+			<h2 className="text-lg font-semibold mb-4">
+				Conversas atribuídas a {userEmail}
+			</h2>
 			{filteredConversations.map((conv) => (
 				<ConversationCard key={conv.id} conversation={conv} />
 			))}
