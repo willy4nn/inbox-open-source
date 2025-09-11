@@ -1,11 +1,11 @@
 import { create } from "zustand";
 
-interface CustomFilter {
+export interface CustomFilter {
 	id: string;
 	name: string;
 
 	// 🔑 Opções de filtro alinhadas ao DTO de conversa
-	responsavel?: string; // assignee.id
+	responsavel?: string; // email do assignee
 	canal?: string; // channel
 	agenteIA?: string; // agentId
 	prioridade?: "LOW" | "MEDIUM" | "HIGH"; // priority
@@ -18,6 +18,7 @@ interface CustomFilter {
 interface CustomFiltersState {
 	filters: CustomFilter[];
 	selectedFilter: string | null;
+
 	addFilter: (filter: CustomFilter) => void;
 	removeFilter: (id: string) => void;
 	selectFilter: (id: string | null) => void;
@@ -28,9 +29,7 @@ export const useCustomFiltersStore = create<CustomFiltersState>((set) => ({
 	selectedFilter: null,
 
 	addFilter: (filter) =>
-		set((state) => ({
-			filters: [...state.filters, filter],
-		})),
+		set((state) => ({ filters: [...state.filters, filter] })),
 
 	removeFilter: (id) =>
 		set((state) => ({
@@ -41,5 +40,3 @@ export const useCustomFiltersStore = create<CustomFiltersState>((set) => ({
 
 	selectFilter: (id) => set({ selectedFilter: id }),
 }));
-
-export type { CustomFilter };

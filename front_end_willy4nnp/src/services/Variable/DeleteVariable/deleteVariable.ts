@@ -26,7 +26,6 @@ export async function deleteVariable(
 
 	try {
 		data = await res.json();
-		console.log("Raw response from deleteVariable:", data); // 👈 optional for debugging
 	} catch {
 		throw new Error("Failed to delete variable: invalid server response");
 	}

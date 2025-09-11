@@ -39,8 +39,5 @@ export async function getAllConversations(
 
 	const data: getAllConversationsResponseDTO = await res.json();
 
-	// 🔹 Loga o resultado puro da API
-	console.log("📥 Resultado bruto da API (getAllConversations):", data);
-
 	return data;
 }

@@ -10,11 +10,19 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import {
+	Select,
+	SelectTrigger,
+	SelectValue,
+	SelectContent,
+	SelectItem,
+} from "@/components/ui/select";
 import {
 	useCustomFiltersStore,
 	CustomFilter,
 } from "@/store/useCustomFiltersStore";
-import { Label } from "@/components/ui/label";
+import { useGetMemberships } from "@/hooks/Memberships/useGetMemberships";
 
 interface CustomFiltersModalProps {
 	open: boolean;
@@ -22,12 +30,10 @@ interface CustomFiltersModalProps {
 }
 
 export function CustomFiltersModal({ open, onClose }: CustomFiltersModalProps) {
-	const addFilter = useCustomFiltersStore(
-		(state: { addFilter: (f: CustomFilter) => void }) => state.addFilter
-	);
+	const addFilter = useCustomFiltersStore((state) => state.addFilter);
 
 	const [name, setName] = useState("");
-	const [responsavel, setResponsavel] = useState("");
+	const [responsavel, setResponsavel] = useState(""); // email do usuário
 	const [canal, setCanal] = useState("");
 	const [agenteIA, setAgenteIA] = useState("");
 	const [prioridade, setPrioridade] = useState<
@@ -37,6 +43,8 @@ export function CustomFiltersModal({ open, onClose }: CustomFiltersModalProps) {
 	const [statusIA, setStatusIA] = useState<"ENABLED" | "DISABLED" | "">("");
 	const [cenarioCRM, setCenarioCRM] = useState("");
 	const [nivelInsatisfacao, setNivelInsatisfacao] = useState<number | "">("");
+
+	const { memberships, isLoading } = useGetMemberships();
 
 	const handleSave = () => {
 		if (!name.trim()) return;
@@ -61,7 +69,7 @@ export function CustomFiltersModal({ open, onClose }: CustomFiltersModalProps) {
 
 		addFilter(newFilter);
 
-		// Limpa campos
+		// reset campos
 		setName("");
 		setResponsavel("");
 		setCanal("");
@@ -81,7 +89,6 @@ export function CustomFiltersModal({ open, onClose }: CustomFiltersModalProps) {
 				<DialogHeader>
 					<DialogTitle>Criar Filtro Personalizado</DialogTitle>
 				</DialogHeader>
-
 				<div className="space-y-4">
 					<div>
 						<Label>Nome do filtro</Label>
@@ -93,10 +100,27 @@ export function CustomFiltersModal({ open, onClose }: CustomFiltersModalProps) {
 
 					<div>
 						<Label>Usuário responsável</Label>
-						<Input
+						<Select
 							value={responsavel}
-							onChange={(e) => setResponsavel(e.target.value)}
-						/>
+							onValueChange={setResponsavel}
+						>
+							<SelectTrigger>
+								<SelectValue
+									placeholder={
+										isLoading
+											? "Carregando..."
+											: "Selecione um usuário"
+									}
+								/>
+							</SelectTrigger>
+							<SelectContent>
+								{memberships?.map((m) => (
+									<SelectItem key={m.email} value={m.email}>
+										{m.name} ({m.email})
+									</SelectItem>
+								))}
+							</SelectContent>
+						</Select>
 					</div>
 
 					<div>
@@ -121,13 +145,10 @@ export function CustomFiltersModal({ open, onClose }: CustomFiltersModalProps) {
 							value={prioridade}
 							onChange={(e) =>
 								setPrioridade(
-									e.target.value === "LOW" ||
-										e.target.value === "MEDIUM" ||
-										e.target.value === "HIGH"
-										? (e.target.value as
-												| "LOW"
-												| "MEDIUM"
-												| "HIGH")
+									["LOW", "MEDIUM", "HIGH"].includes(
+										e.target.value
+									)
+										? (e.target.value as any)
 										: ""
 								)
 							}
@@ -147,14 +168,9 @@ export function CustomFiltersModal({ open, onClose }: CustomFiltersModalProps) {
 						<Input
 							value={statusIA}
 							onChange={(e) =>
-								setStatusIA(
-									e.target.value === "ENABLED" ||
-										e.target.value === "DISABLED"
-										? (e.target.value as
-												| "ENABLED"
-												| "DISABLED")
-										: ""
-								)
+								["ENABLED", "DISABLED"].includes(e.target.value)
+									? setStatusIA(e.target.value as any)
+									: setStatusIA("")
 							}
 						/>
 					</div>

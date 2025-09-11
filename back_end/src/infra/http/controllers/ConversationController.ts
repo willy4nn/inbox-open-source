@@ -142,12 +142,6 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 						data
 					);
 
-				// 🔹 Log depois de passar no schema
-				console.log(
-					"✅ Conversas (validadas pelo schema):",
-					parsedData
-				);
-
 				return reply.status(200).send(parsedData);
 			} catch (err) {
 				console.error("Erro no handler de /conversation:", err);
@@ -201,11 +195,6 @@ export const getConversationsRoute: FastifyPluginAsyncZod = async (server) => {
 					ConversationSchemas.getConversationById.response.success.parse(
 						data
 					);
-
-				console.log(
-					"✅ Conversa única (validada pelo schema):",
-					parsedData
-				);
 
 				return reply.status(200).send(parsedData);
 			} catch (err) {
