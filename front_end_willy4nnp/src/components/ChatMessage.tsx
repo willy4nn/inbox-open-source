@@ -29,14 +29,14 @@ export const ChatMessage = ({
 }: ChatMessageProps) => {
 	const isHuman = sender === "human";
 
-	const textColor = isHuman ? "text-[var(--foreground-50)]" : "text-white";
+	const textColor = isHuman ? "text-[var(--foreground-50)]" : "text-[var(--foreground-950)]";
 	const bgClass = isHuman
 		? "bg-[var(--background-600)] border-[var(--background-700)]"
 		: "bg-[var(--primary-500)] border-[var(--primary-600)]";
 
 	const mdComponents: Record<string, any> = {
 		p: ({ node, ...props }: any) => (
-			<p className={`text-sm leading-relaxed ${textColor}`} {...props} />
+			<p className={`text-base leading-relaxed ${textColor}`} {...props} />
 		),
 		a: ({ node, ...props }: any) => (
 			<a
@@ -128,7 +128,7 @@ export const ChatMessage = ({
 					<span
 						className={`block text-[10px] opacity-70 mt-1 ${
 							isHuman
-								? "text-[var(--foreground-300)]"
+								? "text-[var(--foreground-50)]"
 								: "text-[var(--primary-100)]"
 						}`}
 					>
