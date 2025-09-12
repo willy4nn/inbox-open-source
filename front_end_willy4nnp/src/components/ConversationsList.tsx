@@ -91,20 +91,28 @@ export function ConversationsList() {
 	);
 
 	if (!allConversations || allConversations.length === 0)
-		return <p>Carregando conversas...</p>;
+		return (
+			<p className="w-64 border-[var(--background-200)] bg-[var(--background-100)] h-full border-r p-4 overflow-y-scroll">
+				Carregando conversas...
+			</p>
+		);
 	if (filteredConversations.length === 0)
-		return <p>Nenhuma conversa encontrada.</p>;
+		return (
+			<p className="w-64 border-[var(--background-200)] bg-[var(--background-100)] h-full border-r p-4 overflow-y-scroll">
+				Nenhuma conversa encontrada.
+			</p>
+		);
 
 	return (
-		<div className="w-80 border-r border-gray-200 p-4 overflow-y-auto">
+		<div className="w-64 border-[var(--background-200)] bg-[var(--background-100)] h-full border-r p-4 overflow-y-scroll scrollbar-conversations">
 			<h2 className="text-lg font-semibold mb-4">
-				{activeCustomFilter?.responsavel
-					? `Conversas atribuídas a ${activeCustomFilter.responsavel}`
-					: "Todas as conversas"}
+				Conversas
 			</h2>
-			{filteredConversations.map((conv) => (
-				<ConversationCard key={conv.id} conversation={conv} />
-			))}
+			<div className="flex flex-col gap-2">
+				{filteredConversations.map((conv) => (
+					<ConversationCard key={conv.id} conversation={conv} />
+				))}
+			</div>
 		</div>
 	);
 }

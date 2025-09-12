@@ -9,7 +9,7 @@ export function CustomSidebarTrigger() {
 	return (
 		<button
 			onClick={toggleSidebar}
-			className="cursor-pointer p-2 rounded border border-gray-300"
+			className="cursor-pointer p-2 rounded border bg-[var(--background-400)] border-[var(--background-500)]"
 		>
 			<Menu className="w-4 h-4 text-gray-700" />
 		</button>

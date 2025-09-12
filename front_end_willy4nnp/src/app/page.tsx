@@ -20,10 +20,18 @@ export default function Page() {
 	if (isLoading) return <p>Carregando conversas...</p>;
 
 	return (
-		<div className="flex h-screen w-full bg-gray-50">
-			<ConversationsList />
-			<ChatContainer />
-			<OptionsPanel />
+		<div className="flex flex-1 w-full bg-[var(--background-50)] min-h-0">
+			<div className="min-h-0">
+				<ConversationsList />
+			</div>
+
+			<div className="w-full min-h-0">
+				<ChatContainer />
+			</div>
+
+			<div className="min-h-0">
+				<OptionsPanel />
+			</div>
 		</div>
 	);
 }

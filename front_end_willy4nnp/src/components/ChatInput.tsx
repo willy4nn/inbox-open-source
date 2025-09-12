@@ -17,7 +17,7 @@ export const ChatInput = ({
 	disabled,
 }: ChatInputProps) => {
 	return (
-		<div className="p-4 border-t flex gap-2">
+		<div className="p-4 border-t flex gap-2 bg-[var(--background-50)]">
 			<Input
 				placeholder="Digite sua mensagem..."
 				value={value}
@@ -26,8 +26,13 @@ export const ChatInput = ({
 					if (e.key === "Enter") onSend();
 				}}
 				disabled={disabled}
+				className="bg-[var(--background-100)] border-[var(--background-200)] hover:bg-[var(--background-200)] hover:border-[var(--background-300)]"
 			/>
-			<Button onClick={onSend} disabled={disabled}>
+			<Button
+				onClick={onSend}
+				disabled={disabled}
+				className="cursor-pointer"
+			>
 				Enviar
 			</Button>
 		</div>

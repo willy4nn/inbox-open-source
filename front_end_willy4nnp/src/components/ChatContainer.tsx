@@ -45,7 +45,14 @@ export function ChatContainer() {
 	}, [messages, selectedConversation]);
 
 	if (!selectedConversation)
-		return <p className="p-4">Selecione uma conversa para abrir o chat</p>;
+		return (
+			<div className="flex-1 flex flex-col bg-[var(--background-50)] w-full h-full">
+				<p className="p-4 w-full">
+					Selecione uma conversa para abrir o chat
+				</p>
+				;
+			</div>
+		);
 
 	const handleSendMessage = async () => {
 		if (!newMessage.trim() || !selectedConversation) return;
@@ -90,7 +97,7 @@ export function ChatContainer() {
 		);
 
 	return (
-		<div className="flex-1 flex flex-col">
+		<div className="flex-1 flex flex-col bg-[var(--background-50)] w-full h-full">
 			<div className="p-4 border-b">
 				<h2 className="text-lg font-semibold">
 					{selectedConversation.aiUserIdentifier ??
@@ -99,7 +106,7 @@ export function ChatContainer() {
 				</h2>
 			</div>
 
-			<div className="flex-1 p-4 overflow-y-auto space-y-4">
+			<div className="flex-1 h-full p-4 overflow-y-auto space-y-4">
 				{isLoading && <p>Carregando mensagens...</p>}
 				{sortedMessages?.map((msg) => (
 					<ChatMessage

@@ -52,7 +52,10 @@ export function AddOrganizationDialog() {
 	return (
 		<Dialog>
 			<DialogTrigger asChild>
-				<Button variant="outline" className="w-full">
+				<Button
+					variant="outline"
+					className="cursor-pointer w-full bg-[var(--background-500)] border-[var(--background-600)] hover:bg-[var(--background-600)] hover:border-[var(--background-700)]"
+				>
 					Adicionar Inbox
 				</Button>
 			</DialogTrigger>

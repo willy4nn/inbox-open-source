@@ -30,7 +30,7 @@ export function OptionsPanel() {
 
 	if (!selectedConversation)
 		return (
-			<div className="w-64 border-l border-gray-200 p-4">
+			<div className="h-full w-64 border-l p-4 overflow-y-auto space-y-4 bg-[var(--background-100)] border-[var(--background-200)]">
 				<p>Selecione uma conversa para ver opções</p>
 			</div>
 		);
@@ -62,10 +62,14 @@ export function OptionsPanel() {
 	};
 
 	return (
-		<div className="w-64 border-l border-gray-200 p-4 overflow-y-auto space-y-4">
+		<div className="h-full w-64 border-l p-4 overflow-y-auto space-y-4 bg-[var(--background-100)] border-[var(--background-200)]">
 			<h2 className="text-lg font-semibold mb-2">Opções</h2>
 
-			<Button onClick={handleToggleAI} disabled={isAiMutating}>
+			<Button
+				onClick={handleToggleAI}
+				disabled={isAiMutating}
+				className="w-full cursor-pointer"
+			>
 				{selectedConversation.isAiEnabled
 					? "Desativar AI"
 					: "Ativar AI"}
@@ -80,15 +84,26 @@ export function OptionsPanel() {
 					onValueChange={handleStatusChange}
 					disabled={isStatusMutating}
 				>
-					<SelectTrigger className="w-full">
+					<SelectTrigger className="w-full text-[var(--foreground-50)] cursor-pointer bg-[var(--background-300)] border border-[var(--background-400)] hover:bg-[var(--background-400)] hover:border-[var(--background-500)] flex items-center justify-between px-2">
 						<SelectValue placeholder="Selecione o status" />
 					</SelectTrigger>
-					<SelectContent>
-						<SelectItem value="RESOLVED">Resolvida</SelectItem>
-						<SelectItem value="UNRESOLVED">
+					<SelectContent className="text-[var(--foreground-50)] cursor-pointer bg-[var(--background-300)] border border-[var(--background-400)] hover:bg-[var(--background-400)] hover:border-[var(--background-500)]">
+						<SelectItem
+							className="text-[var(--foreground-50)] cursor-pointer bg-[var(--background-300)] border border-[var(--background-400)] hover:bg-[var(--background-400)] hover:border-[var(--background-500)]"
+							value="RESOLVED"
+						>
+							Resolvida
+						</SelectItem>
+						<SelectItem
+							className="text-[var(--foreground-50)] cursor-pointer bg-[var(--background-300)] border border-[var(--background-400)] hover:bg-[var(--background-400)] hover:border-[var(--background-500)]"
+							value="UNRESOLVED"
+						>
 							Não Resolvida
 						</SelectItem>
-						<SelectItem value="HUMAN_REQUESTED">
+						<SelectItem
+							className="text-[var(--foreground-50)] cursor-pointer bg-[var(--background-300)] border border-[var(--background-400)] hover:bg-[var(--background-400)] hover:border-[var(--background-500)]"
+							value="HUMAN_REQUESTED"
+						>
 							Solicitar Humano
 						</SelectItem>
 					</SelectContent>
@@ -102,13 +117,28 @@ export function OptionsPanel() {
 					onValueChange={handlePriorityChange}
 					disabled={isPriorityMutating}
 				>
-					<SelectTrigger className="w-full">
+					<SelectTrigger className="w-full text-[var(--foreground-50)] cursor-pointer bg-[var(--background-300)] border border-[var(--background-400)] hover:bg-[var(--background-400)] hover:border-[var(--background-500)] flex items-center justify-between px-2">
 						<SelectValue placeholder="Selecione a prioridade" />
 					</SelectTrigger>
 					<SelectContent>
-						<SelectItem value="LOW">Baixa</SelectItem>
-						<SelectItem value="MEDIUM">Média</SelectItem>
-						<SelectItem value="HIGH">Alta</SelectItem>
+						<SelectItem
+							className="w-full text-[var(--foreground-50)] cursor-pointer bg-[var(--background-300)] border border-[var(--background-400)] hover:bg-[var(--background-400)] hover:border-[var(--background-500)] flex items-center justify-between px-2"
+							value="LOW"
+						>
+							Baixa
+						</SelectItem>
+						<SelectItem
+							className="w-full text-[var(--foreground-50)] cursor-pointer bg-[var(--background-300)] border border-[var(--background-400)] hover:bg-[var(--background-400)] hover:border-[var(--background-500)] flex items-center justify-between px-2"
+							value="MEDIUM"
+						>
+							Média
+						</SelectItem>
+						<SelectItem
+							className="w-full text-[var(--foreground-50)] cursor-pointer bg-[var(--background-300)] border border-[var(--background-400)] hover:bg-[var(--background-400)] hover:border-[var(--background-500)] flex items-center justify-between px-2"
+							value="HIGH"
+						>
+							Alta
+						</SelectItem>
 					</SelectContent>
 				</Select>
 			</div>

@@ -23,55 +23,22 @@ export function AppSidebar() {
 	const removeOrganization = useOrgStore((s) => s.removeOrganization);
 
 	return (
-		<Sidebar>
+		<Sidebar className="border-[var(--background-500)] h-screen">
 			{/* HEADER */}
-			<SidebarHeader>
-				<div className="flex items-center gap-2 px-4 py-4 border">
-					<span className="font-bold text-lg">Inbox</span>
+			<SidebarHeader className="bg-[var(--background-400)] items-center p-3">
+				<div className="flex items-center gap-2 px-0 py-0">
+					<span className="font-bold text-2xl">Inbox</span>
 				</div>
 			</SidebarHeader>
 
 			{/* CONTENT */}
-			<SidebarContent>
+			<SidebarContent className="bg-[var(--background-400)] px-2 py-2">
 				{/* Lista de inboxes */}
 				<SidebarGroup>
 					<SidebarGroupLabel>Inboxes</SidebarGroupLabel>
 					<SidebarGroupContent>
 						<SidebarMenu>
-							{organizations.map((org) => (
-								<SidebarMenuItem key={org.token}>
-									<SidebarMenuButton asChild>
-										<div
-											className={`flex justify-between items-center px-2 py-1 rounded cursor-pointer hover:bg-accent ${
-												activeOrg?.token === org.token
-													? "bg-accent/50 font-semibold"
-													: ""
-											}`}
-											onClick={() =>
-												setActiveOrg(org.token)
-											}
-										>
-											<div className="flex flex-col">
-												<span>{org.inboxName}</span>
-												<span className="text-xs text-muted-foreground">
-													{org.agents.length} agentes
-												</span>
-											</div>
-											<button
-												className="p-1 rounded hover:bg-red-500 hover:text-white"
-												onClick={(e) => {
-													e.stopPropagation();
-													removeOrganization(
-														org.token
-													);
-												}}
-											>
-												<Trash2 className="w-4 h-4" />
-											</button>
-										</div>
-									</SidebarMenuButton>
-								</SidebarMenuItem>
-							))}
+	
 
 							{/* Botão para adicionar inbox */}
 							<SidebarMenuItem>
@@ -81,30 +48,12 @@ export function AppSidebar() {
 					</SidebarGroupContent>
 				</SidebarGroup>
 
-				{/* Menu fixo da aplicação */}
-				<SidebarGroup>
-					<SidebarGroupLabel>Application</SidebarGroupLabel>
-					<SidebarGroupContent>
-						<SidebarMenu>
-							<SidebarMenuItem>
-								<SidebarMenuButton asChild>
-									<a
-										href="#"
-										className="flex items-center gap-2"
-									>
-										<Home className="w-4 h-4" />
-										<span>Dashboard</span>
-									</a>
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						</SidebarMenu>
-					</SidebarGroupContent>
-				</SidebarGroup>
+
 			</SidebarContent>
 
 			{/* FOOTER */}
-			<SidebarFooter>
-				<div className="px-4 py-2 text-xs text-muted-foreground">
+			<SidebarFooter className="bg-[var(--background-400)] px-2 py-2">
+				<div className="px-4 py-2 text-xs text-[var(--foreground-50)]">
 					© 2025 Inbox - v1.0.0
 				</div>
 			</SidebarFooter>

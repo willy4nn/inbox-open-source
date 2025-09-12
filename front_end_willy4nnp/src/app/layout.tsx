@@ -1,4 +1,3 @@
-// src/app/layout.tsx
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
@@ -29,23 +28,23 @@ export default function RootLayout({
 	children: React.ReactNode;
 }) {
 	return (
-		<html lang="en">
+		<html lang="en" className="h-screen w-screen">
 			<body
-				className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+				className={`${geistSans.variable} ${geistMono.variable} antialiased flex h-screen w-screen`}
 			>
-				{/* SidebarProvider agora engloba toda a estrutura */}
 				<SidebarProvider>
 					{/* Sidebar fixa */}
-					<AppSidebar />
+					{/*<AppSidebar />
 
-					<main className="w-full flex flex-col">
+					{/* Main content flex */}
+					<main className="flex-1 flex flex-col min-h-0">
 						{/* Inbox com trigger funcionando */}
 						<SidebarInbox />
 
 						{/* Container que agrupa Header + conteúdo */}
-						<div className="flex flex-col w-full">
+						<div className="flex-1 flex flex-col min-h-0">
 							<HeaderFilters />
-							{children}
+							{children} {/* Aqui entra o Page */}
 						</div>
 					</main>
 				</SidebarProvider>
