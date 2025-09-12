@@ -7,12 +7,12 @@ import { Sun, Moon } from "lucide-react";
 
 export function SidebarInbox() {
 	const { memberships, isLoading } = useGetMemberships();
-	const { theme, toggleTheme } = useTheme();
+	const { theme, toggleTheme, inboxName, logoUrl } = useTheme();
 
 	if (isLoading) {
 		return (
 			<div className="px-4 py-3 bg-[var(--background-300)] border-[var(--background-400)] border-b flex justify-between items-center">
-				<div className="text-white font-semibold">White-label</div>
+				<div className="text-white font-semibold">{inboxName}</div>
 				<div className="w-8 h-8 rounded-full bg-gray-200 animate-pulse" />
 			</div>
 		);
@@ -26,9 +26,18 @@ export function SidebarInbox() {
 
 	return (
 		<div className="px-4 py-3 bg-[var(--background-300)] border-[var(--background-400)] border-b flex justify-between items-center">
-			{/* Nome do Inbox / White-label */}
-			<div className="text-[var(--foreground-50)] text-xl font-semibold">
-				Inbox
+			{/* Logo + Nome do Inbox / White-label */}
+			<div className="flex items-center gap-2">
+				{logoUrl && (
+					<img
+						src={logoUrl}
+						alt={inboxName}
+						className="w-8 h-8 object-contain"
+					/>
+				)}
+				<div className="text-[var(--foreground-50)] text-xl font-semibold">
+					{inboxName}
+				</div>
 			</div>
 
 			{/* Avatar e botão de tema */}
