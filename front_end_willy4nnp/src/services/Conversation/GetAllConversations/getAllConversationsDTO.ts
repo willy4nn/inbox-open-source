@@ -49,4 +49,8 @@ interface getAllConversationsResponseItem {
 
 type getAllConversationsResponseDTO = getAllConversationsResponseItem[];
 
-export type { getAllConversationsRequestDTO, getAllConversationsResponseDTO };
+export type {
+	getAllConversationsRequestDTO,
+	getAllConversationsResponseDTO,
+	getAllConversationsResponseItem,
+};
