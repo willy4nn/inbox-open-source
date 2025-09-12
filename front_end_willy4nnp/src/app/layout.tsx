@@ -3,15 +3,11 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
 import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "@/components/layout/AppSidebar";
 import { SidebarInbox } from "@/components/layout/SidebarInbox";
 import { HeaderFilters } from "@/components/layout/HeaderFilters";
+import { ThemeProvider } from "@/provider/ThemeProvider";
 
-const geistSans = Geist({
-	variable: "--font-geist-sans",
-	subsets: ["latin"],
-});
-
+const geistSans = Geist({ variable: "--font-geist-sans", subsets: ["latin"] });
 const geistMono = Geist_Mono({
 	variable: "--font-geist-mono",
 	subsets: ["latin"],
@@ -33,20 +29,15 @@ export default function RootLayout({
 				className={`${geistSans.variable} ${geistMono.variable} antialiased flex h-screen w-screen`}
 			>
 				<SidebarProvider>
-					{/* Sidebar fixa */}
-					{/*<AppSidebar />
-
-					{/* Main content flex */}
-					<main className="flex-1 flex flex-col min-h-0">
-						{/* Inbox com trigger funcionando */}
-						<SidebarInbox />
-
-						{/* Container que agrupa Header + conteúdo */}
-						<div className="flex-1 flex flex-col min-h-0">
-							<HeaderFilters />
-							{children} {/* Aqui entra o Page */}
-						</div>
-					</main>
+					<ThemeProvider>
+						<main className="flex-1 h-full flex flex-col min-h-0">
+							<SidebarInbox />
+							<div className="flex-1 flex flex-col min-h-0">
+								<HeaderFilters />
+								{children}
+							</div>
+						</main>
+					</ThemeProvider>
 				</SidebarProvider>
 			</body>
 		</html>

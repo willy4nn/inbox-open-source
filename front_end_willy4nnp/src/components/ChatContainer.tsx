@@ -46,11 +46,10 @@ export function ChatContainer() {
 
 	if (!selectedConversation)
 		return (
-			<div className="flex-1 flex flex-col bg-[var(--background-50)] w-full h-full">
-				<p className="p-4 w-full">
+			<div className="flex-1 flex flex-col bg-[var(--background-50)] w-full h-full justify-center items-center">
+				<p className="p-4 w-full text-center">
 					Selecione uma conversa para abrir o chat
 				</p>
-				;
 			</div>
 		);
 

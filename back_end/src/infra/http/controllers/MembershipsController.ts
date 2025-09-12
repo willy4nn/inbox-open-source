@@ -1,3 +1,4 @@
+// MembershipsController.ts
 import type { FastifyPluginAsyncZod } from "fastify-type-provider-zod";
 import { z } from "zod";
 
@@ -13,6 +14,7 @@ export const MembershipSchemas = {
 						image: z.string().nullable(),
 						picture: z.string().nullable(),
 						customPicture: z.string().nullable(),
+						role: z.string().nullable(), // role do membership (OWNER, USER)
 					})
 				)
 				.describe("Lista de membros simplificada"),
@@ -25,14 +27,13 @@ export const MembershipSchemas = {
 
 // 🔹 Plugin de rotas de memberships
 export const getMembershipsRoute: FastifyPluginAsyncZod = async (server) => {
-	// GET /api/memberships
 	server.get(
 		"/api/memberships",
 		{
 			schema: {
 				tags: ["memberships"],
 				summary:
-					"Lista apenas dados básicos dos usuários em memberships",
+					"Lista todos os usuários em memberships com a role correta",
 				response: {
 					200: MembershipSchemas.getMemberships.response.success,
 					500: MembershipSchemas.getMemberships.response.error,
@@ -46,7 +47,7 @@ export const getMembershipsRoute: FastifyPluginAsyncZod = async (server) => {
 
 			try {
 				const res = await fetch(
-					`https://api.chatvolt.ai/api/memberships`,
+					"https://api.chatvolt.ai/api/memberships",
 					{
 						method: "GET",
 						headers: {
@@ -63,10 +64,11 @@ export const getMembershipsRoute: FastifyPluginAsyncZod = async (server) => {
 						.send({ error: "Falha ao buscar memberships" });
 				}
 
-				// Extrair apenas os campos necessários
+				// Extrair os campos necessários, pegando role do nível do membership
 				const simplified = z
 					.array(
 						z.object({
+							role: z.string().nullable(), // role do membership
 							user: z.object({
 								email: z.string().email(),
 								name: z.string(),
@@ -83,6 +85,7 @@ export const getMembershipsRoute: FastifyPluginAsyncZod = async (server) => {
 						image: item.user.image,
 						picture: item.user.picture,
 						customPicture: item.user.customPicture,
+						role: item.role, // role do membership
 					}));
 
 				return reply.status(200).send(simplified);
